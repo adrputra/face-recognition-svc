@@ -54,5 +54,5 @@ jobs:
           --memory-reservation 256m \
           --network main \
           --restart unless-stopped \
-          -e PORT=3001 \
-          -p 3001:3001 ${{ secrets.DOCKER_USERNAME }}/${{ secrets.NAME }}:latest
+          -e PORT=8001 \
+          -p 8001:8001 ${{ secrets.DOCKER_USERNAME }}/${{ secrets.NAME }}:latest
