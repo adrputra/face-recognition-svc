@@ -1,0 +1,47 @@
+databaseProfile:
+  database:
+    # host: "217.15.163.138"
+    host: "mysqlc.eventarry.com"
+    port: "3306"
+    username: "root"
+    password: "Contabo8@adr"
+    database: "DigitalLearning"
+    maxConn: 5
+    maxIdle: 5
+    lifeTime: 5
+  timeout: 30000
+listener:
+  host: "0.0.0.0"
+  port: 8001
+auth:
+  accessSecret: "secret"
+  accessExpiry: 184000
+  refreshSecret: "secret"
+redis:
+  host: "217.15.163.138"
+  port: "6379"
+  username: ""
+  password: "Idcloudhost8@adr"
+jaeger:
+  host: "217.15.163.138"
+  port: "6831"
+  tracePerSecond: 100
+  serviceName: "face-recognition-svc"
+minioProfile:
+  host: "217.15.163.138"
+  port: "9000"
+  username: "admin"
+  secretKey: "adrputra"
+  tls: false
+  region: "id-jkt-1"
+  bucket: "face-dataset"
+api:
+  processingsvc:
+    host: "http://localhost"
+    port: 8002
+    endpoint: "/train-model"
+rabbitmq:
+  host: "217.15.163.138"
+  port: "5672"
+  username: "guest"
+  password: "guest"
