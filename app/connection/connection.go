@@ -34,12 +34,13 @@ func InitConnection(c config.Config) {
 }
 
 func NewDatabaseConnection(c *config.Database) *gorm.DB {
-	dataSourceName := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Asia%%2FJakarta",
+	dataSourceName := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=%s",
 		c.Username,
 		c.Password,
 		c.Host,
 		c.Port,
-		c.Database)
+		c.Database,
+		"Asia%2FJakarta")
 
 	db, err := gorm.Open(mysql.Open(dataSourceName), &gorm.Config{})
 	if err != nil {
