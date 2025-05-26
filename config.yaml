@@ -43,5 +43,5 @@ api:
 rabbitmq:
   host: "217.15.163.138"
   port: "5672"
-  username: "guest"
-  password: "guest"
+  username: "admin"
+  password: "Contabo8@adr"
