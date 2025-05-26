@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-func main() {
+func main(){
 	os.Setenv("TZ", "Asia/Jakarta")
 	app.Start()
 }
