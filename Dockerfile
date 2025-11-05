@@ -30,6 +30,9 @@ COPY --from=builder /app/myapp /app/myapp
 # Copy the configuration file from the builder stage (if needed)
 COPY --from=builder /app/config.yaml /app/config.yaml
 
+# Copy the migrations directory
+COPY --from=builder /app/migrations /app/migrations
+
 # Expose the port that the application listens on
 EXPOSE 8001
 
