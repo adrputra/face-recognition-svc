@@ -15,7 +15,7 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/redis/go-redis/v9"
 	"github.com/sirupsen/logrus"
-	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
@@ -34,14 +34,16 @@ func InitConnection(c config.Config) {
 }
 
 func NewDatabaseConnection(c *config.Database) *gorm.DB {
-	dataSourceName := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+	dataSourceName := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable TimeZone=Asia/Jakarta",
+		c.Host,
 		c.Username,
 		c.Password,
-		c.Host,
-		c.Port,
-		c.Database)
+		c.Database,
+		c.Port)
 
-	db, err := gorm.Open(mysql.Open(dataSourceName), &gorm.Config{})
+	logrus.Println(dataSourceName)
+
+	db, err := gorm.Open(postgres.Open(dataSourceName), &gorm.Config{})
 	if err != nil {
 		logrus.Panicf("Cannot Connect To Database %s: %v", c.Database, err)
 	}

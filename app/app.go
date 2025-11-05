@@ -30,6 +30,7 @@ func Start() {
 	opentracing.SetGlobalTracer(tracer)
 
 	connection.InitConnection(*cfg)
+	connection.MigrateDatabase(&cfg.DatabaseProfile.Database)
 	router.InitFactory(cfg, connection.Db, connection.Storage, connection.Redis, connection.Mq)
 
 	host := cfg.Listener.Host

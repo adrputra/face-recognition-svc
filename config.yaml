@@ -1,11 +1,10 @@
 databaseProfile:
   database:
-    # host: "217.15.163.138"
-    host: "mysqlc.eventarry.com"
-    port: "3306"
-    username: "root"
+    host: "154.53.63.99"
+    port: 5432
+    username: "admin"
     password: "Contabo8@adr"
-    database: "DigitalLearning"
+    database: "digital_learning"
     maxConn: 5
     maxIdle: 5
     lifeTime: 5
@@ -18,18 +17,18 @@ auth:
   accessExpiry: 184000
   refreshSecret: "secret"
 redis:
-  host: "217.15.163.138"
+  host: "154.53.63.99"
   port: "6379"
   username: ""
-  password: "Idcloudhost8@adr"
+  password: "Contabo8@adr"
 jaeger:
-  host: "217.15.163.138"
+  host: "154.53.63.99"
   port: "6831"
   tracePerSecond: 100
   serviceName: "face-recognition-svc"
 minioProfile:
-  host: "217.15.163.138"
-  port: "9000"
+  host: "154.53.63.99"
+  port: "7000"
   username: "admin"
   secretKey: "adrputra"
   tls: false
@@ -41,7 +40,7 @@ api:
     port: 8002
     endpoint: "/train-model"
 rabbitmq:
-  host: "217.15.163.138"
+  host: "154.53.63.99"
   port: "5672"
   username: "admin"
-  password: "Contabo8@adr"
+  password: "Rabbitmq8@adr"
