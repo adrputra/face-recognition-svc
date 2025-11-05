@@ -13,7 +13,7 @@ import (
 )
 
 func MigrateDatabase(c *config.Database) {
-	dataSourceName := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable TimeZone=Asia/Jakarta",
+	dataSourceName := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable TimeZone=+07:00",
 		c.Host,
 		c.Username,
 		c.Password,
