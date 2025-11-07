@@ -18,11 +18,8 @@ func IsAuthorized() echo.MiddlewareFunc {
 			token := c.Get("user").(*jwt.Token)
 			claims := token.Claims.(*model.JwtCustomClaims)
 			access := strings.Split(claims.MenuMapping[c.Request().Header.Get("app-menu-id")], ",")
-			if c.Request().Header.Get("app-menu-id") != claims.Role {
-				return LogError(c, model.ThrowError(http.StatusForbidden, errors.New("Anda Tidak Memiliki Akses")), nil)
-			}
 			if !Contains(access, c.Request().Method) {
-				return LogError(c, model.ThrowError(http.StatusForbidden, errors.New("Method Not Allowed")), nil)
+				return LogError(c, model.ThrowError(http.StatusForbidden, errors.New("Anda Tidak Memiliki Akses")), nil)
 			}
 
 			md := metadata.New(map[string]string{
