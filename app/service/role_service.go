@@ -13,6 +13,8 @@ import (
 type InterfaceRoleService interface {
 	CreateNewRoleMapping(e echo.Context) error
 	GetAllRoleMapping(e echo.Context) error
+	UpdateRoleMapping(e echo.Context) error
+	DeleteRoleMapping(e echo.Context) error
 
 	GetAllMenu(e echo.Context) error
 	CreateNewMenu(e echo.Context) error
@@ -76,6 +78,33 @@ func (s *RoleService) GetAllRoleMapping(e echo.Context) error {
 		Code:    200,
 		Message: "Success Get All Role",
 		Data:    response,
+	})
+}
+
+func (s *RoleService) UpdateRoleMapping(e echo.Context) error {
+	ctx, span := utils.StartSpan(e, "UpdateRoleMapping")
+	defer span.Finish()
+
+	var request *model.MenuRoleMapping
+
+	if err := e.Bind(&request); err != nil {
+		utils.LogEventError(span, err)
+		return utils.LogError(e, err, nil)
+	}
+
+	utils.LogEvent(span, "Request", request)
+
+	err := s.uc.UpdateRoleMapping(ctx, request)
+	if err != nil {
+		utils.LogEventError(span, err)
+		return utils.LogError(e, err, nil)
+	}
+
+	utils.LogEvent(span, "Response", "Success Update Role")
+	return e.JSON(http.StatusOK, model.Response{
+		Code:    200,
+		Message: "Success Update Role",
+		Data:    nil,
 	})
 }
 
@@ -220,6 +249,32 @@ func (s *RoleService) DeleteMenu(e echo.Context) error {
 	return e.JSON(http.StatusOK, model.Response{
 		Code:    200,
 		Message: "Success Delete Menu",
+		Data:    nil,
+	})
+}
+
+func (s *RoleService) DeleteRoleMapping(e echo.Context) error {
+	ctx, span := utils.StartSpan(e, "DeleteRoleMapping")
+	defer span.Finish()
+
+	id := e.Param("id")
+	if id == "" {
+		utils.LogEventError(span, errors.New("id shouldn't be empty"))
+		return utils.LogError(e, errors.New("id shouldn't be empty"), nil)
+	}
+
+	utils.LogEvent(span, "Request", id)
+
+	err := s.uc.DeleteRoleMapping(ctx, id)
+	if err != nil {
+		utils.LogEventError(span, err)
+		return utils.LogError(e, err, nil)
+	}
+
+	utils.LogEvent(span, "Response", "Success Delete Role Mapping")
+	return e.JSON(http.StatusOK, model.Response{
+		Code:    200,
+		Message: "Success Delete Role Mapping",
 		Data:    nil,
 	})
 }

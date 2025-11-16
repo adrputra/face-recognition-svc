@@ -4,8 +4,10 @@ import (
 	"context"
 	"errors"
 	"face-recognition-svc/app/model"
+	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/microcosm-cc/bluemonday"
@@ -74,4 +76,19 @@ func Contains(arr []string, str string) bool {
 		}
 	}
 	return false
+}
+
+var jakartaLoc *time.Location
+
+func InitTimeLocation() {
+	var err error
+	jakartaLoc, err = time.LoadLocation("Asia/Jakarta")
+	if err != nil {
+		fmt.Println("Warning: Failed to load Jakarta timezone, using fixed UTC+7 instead")
+		jakartaLoc = time.FixedZone("WIB", 7*60*60) // UTC+7 for Jakarta
+	}
+}
+
+func LocalTime() time.Time {
+	return time.Now().In(jakartaLoc)
 }

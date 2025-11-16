@@ -73,7 +73,7 @@ func (c *DatasetController) UploadUserDataset(ctx context.Context, req *model.Da
 		}
 	}
 
-	err = c.storageClient.UploadFile(ctx, req.File, "face-dataset", bucket)
+	err = c.storageClient.UploadFiles(ctx, req.File, "face-dataset", bucket)
 	if err != nil {
 		utils.LogEventError(span, err)
 		tx.Rollback()

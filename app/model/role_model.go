@@ -35,4 +35,5 @@ type Role struct {
 	CreatedBy string    `gorm:"column:created_by" json:"created_by"`
 	UpdatedBy string    `gorm:"column:updated_by" json:"updated_by"`
 	IsActive  bool      `gorm:"column:is_active" json:"is_active"`
+	Level     int       `gorm:"column:level" json:"level"`
 }

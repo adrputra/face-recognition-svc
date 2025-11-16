@@ -14,25 +14,28 @@ import (
 )
 
 type ServiceFactory struct {
-	user    service.InterfaceUserService
-	dataset service.InterfaceDatasetService
-	role    service.InterfaceRoleService
-	param   service.InterfaceParamService
+	user        service.InterfaceUserService
+	dataset     service.InterfaceDatasetService
+	role        service.InterfaceRoleService
+	param       service.InterfaceParamService
+	institution service.InterfaceInstitutionService
 }
 
 type ControllerFactory struct {
-	user    controller.InterfaceUserController
-	dataset controller.InterfaceDatasetController
-	role    controller.InterfaceRoleController
-	param   controller.InterfaceParamController
+	user        controller.InterfaceUserController
+	dataset     controller.InterfaceDatasetController
+	role        controller.InterfaceRoleController
+	param       controller.InterfaceParamController
+	institution controller.InterfaceInstitutionController
 }
 
 type ClientFactory struct {
-	user    client.InterfaceUserClient
-	storage client.InterfaceStorageClient
-	role    client.InterfaceRoleClient
-	dataset client.InterfaceDatasetClient
-	param   client.InterfaceParamClient
+	user        client.InterfaceUserClient
+	storage     client.InterfaceStorageClient
+	role        client.InterfaceRoleClient
+	dataset     client.InterfaceDatasetClient
+	param       client.InterfaceParamClient
+	institution client.InterfaceInstitutionClient
 }
 
 type Factory struct {
@@ -45,23 +48,26 @@ var factory *Factory
 
 func InitFactory(cfg *config.Config, db *gorm.DB, s3 *s3.S3, redis *redis.Client, mq *amqp.Channel) {
 	client := ClientFactory{
-		user:    client.NewUserClient(db, cfg),
-		storage: client.NewStorageClient(s3, db),
-		role:    client.NewRoleClient(db),
-		dataset: client.NewDatasetClient(db, cfg, mq),
-		param:   client.NewParamClient(db),
+		user:        client.NewUserClient(db, cfg),
+		storage:     client.NewStorageClient(s3, db),
+		role:        client.NewRoleClient(db),
+		dataset:     client.NewDatasetClient(db, cfg, mq),
+		param:       client.NewParamClient(db),
+		institution: client.NewInstitutionClient(db),
 	}
 	controller := ControllerFactory{
-		user:    controller.NewUserController(client.user, client.role),
-		dataset: controller.NewDatasetController(client.storage, db, client.user, cfg, client.dataset),
-		role:    controller.NewRoleController(client.role),
-		param:   controller.NewParamController(redis, client.param),
+		user:        controller.NewUserController(client.user, client.role, client.param, client.storage),
+		dataset:     controller.NewDatasetController(client.storage, db, client.user, cfg, client.dataset),
+		role:        controller.NewRoleController(client.role),
+		param:       controller.NewParamController(redis, client.param),
+		institution: controller.NewInstitutionController(client.institution),
 	}
 	service := ServiceFactory{
-		user:    service.NewUserService(controller.user),
-		dataset: service.NewDatasetService(controller.dataset),
-		role:    service.NewRoleService(controller.role),
-		param:   service.NewParamService(controller.param),
+		user:        service.NewUserService(controller.user),
+		dataset:     service.NewDatasetService(controller.dataset),
+		role:        service.NewRoleService(controller.role),
+		param:       service.NewParamService(controller.param),
+		institution: service.NewInstitutionService(controller.institution),
 	}
 	factory = &Factory{
 		Service:    service,

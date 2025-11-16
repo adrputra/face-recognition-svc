@@ -13,6 +13,8 @@ import (
 type InterfaceRoleController interface {
 	CreateNewRoleMapping(ctx context.Context, request *model.MenuRoleMapping) error
 	GetAllRoleMapping(ctx context.Context) ([]*model.MenuRoleMapping, error)
+	UpdateRoleMapping(ctx context.Context, request *model.MenuRoleMapping) error
+	DeleteRoleMapping(ctx context.Context, id string) error
 
 	GetAllMenu(ctx context.Context) ([]*model.Menu, error)
 	CreateNewMenu(ctx context.Context, request *model.Menu) error
@@ -45,6 +47,7 @@ func (c *RoleController) CreateNewRoleMapping(ctx context.Context, request *mode
 		return err
 	}
 
+	request.Id = uuid.New().String()
 	request.CreatedAt = time.Now()
 	request.UpdatedAt = time.Now()
 	request.CreatedBy = session.Username
@@ -71,6 +74,31 @@ func (c *RoleController) GetAllRoleMapping(ctx context.Context) ([]*model.MenuRo
 	utils.LogEvent(span, "Response", response)
 
 	return response, nil
+}
+
+func (c *RoleController) UpdateRoleMapping(ctx context.Context, request *model.MenuRoleMapping) error {
+	span, ctx := utils.SpanFromContext(ctx, "Controller: UpdateRoleMapping")
+	defer span.Finish()
+
+	utils.LogEvent(span, "Request", request)
+
+	session, err := utils.GetMetadata(ctx)
+	if err != nil {
+		utils.LogEventError(span, err)
+		return err
+	}
+
+	request.UpdatedAt = utils.LocalTime()
+	request.UpdatedBy = session.Username
+
+	err = c.roleClient.UpdateRoleMapping(ctx, request)
+	if err != nil {
+		utils.LogEventError(span, err)
+		return err
+	}
+
+	utils.LogEvent(span, "Response", "Success Update Role Mapping")
+	return nil
 }
 
 func (c *RoleController) GetAllMenu(ctx context.Context) ([]*model.Menu, error) {
@@ -194,6 +222,23 @@ func (c *RoleController) DeleteMenu(ctx context.Context, id string) error {
 	}
 
 	utils.LogEvent(span, "Response", "Success Delete Menu")
+
+	return nil
+}
+
+func (c *RoleController) DeleteRoleMapping(ctx context.Context, id string) error {
+	span, ctx := utils.SpanFromContext(ctx, "Controller: DeleteRoleMapping")
+	defer span.Finish()
+
+	utils.LogEvent(span, "Request", id)
+
+	err := c.roleClient.DeleteRoleMapping(ctx, id)
+	if err != nil {
+		utils.LogEventError(span, err)
+		return err
+	}
+
+	utils.LogEvent(span, "Response", "Success Delete Role Mapping")
 
 	return nil
 }

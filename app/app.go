@@ -20,6 +20,8 @@ func Start() {
 	config.InitConfig()
 	cfg := config.GetConfig()
 
+	utils.InitTimeLocation()
+
 	tracer, closer, err := utils.InitJaeger(cfg)
 	if err != nil {
 		logrus.Fatalf("Failed to initialize Jaeger tracer: %v", err)
@@ -30,7 +32,7 @@ func Start() {
 	opentracing.SetGlobalTracer(tracer)
 
 	connection.InitConnection(*cfg)
-	connection.MigrateDatabase(&cfg.DatabaseProfile.Database)
+	// connection.MigrateDatabase(&cfg.DatabaseProfile.Database)
 	router.InitFactory(cfg, connection.Db, connection.Storage, connection.Redis, connection.Mq)
 
 	host := cfg.Listener.Host
@@ -67,6 +69,7 @@ func Start() {
 	router.InitDatasetRoute("/dataset", api)
 	router.InitRoleRoute("/role", api)
 	router.InitParamRoute("/param", api)
+	router.InitInstitutionRoute("/institution", api)
 
 	e.Logger.Fatal(e.Start(host + ":" + strconv.Itoa(port)))
 }

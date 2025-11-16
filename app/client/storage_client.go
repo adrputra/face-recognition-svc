@@ -18,7 +18,8 @@ import (
 )
 
 type InterfaceStorageClient interface {
-	UploadFile(ctx context.Context, req []*model.File, bucket string, path string) error
+	UploadFile(ctx context.Context, req *model.File, bucket string, path string) (string, error)
+	UploadFiles(ctx context.Context, req []*model.File, bucket string, path string) error
 	StoreFileData(ctx context.Context, tx *gorm.DB, req *model.Dataset) error
 
 	DeleteDatasetDB(ctx context.Context, tx *gorm.DB, username string) error
@@ -39,8 +40,27 @@ func NewStorageClient(s3 *s3.S3, db *gorm.DB) *StorageClient {
 	}
 }
 
-func (c *StorageClient) UploadFile(ctx context.Context, req []*model.File, bucket string, path string) error {
+func (c *StorageClient) UploadFile(ctx context.Context, req *model.File, bucket string, path string) (string, error) {
 	span, ctx := utils.SpanFromContext(ctx, "Client: UploadFile")
+	defer span.Finish()
+
+	_, err := c.s3.PutObjectWithContext(ctx, &s3.PutObjectInput{
+		Bucket: aws.String(bucket),
+		Key:    aws.String(fmt.Sprintf("%s.%s", path, req.Extension)),
+		Body:   bytes.NewReader(req.BytesObject),
+	})
+
+	if err != nil {
+		utils.LogEventError(span, err)
+		return "", err
+	}
+
+	urlStr := fmt.Sprintf("https://minioc.eventarry.com/api/v1/buckets/bpkp/objects/download?preview=true&prefix=%s.%s", path, req.Extension)
+	return urlStr, nil
+}
+
+func (c *StorageClient) UploadFiles(ctx context.Context, req []*model.File, bucket string, path string) error {
+	span, ctx := utils.SpanFromContext(ctx, "Client: UploadFiles")
 	defer span.Finish()
 
 	for _, file := range req {
