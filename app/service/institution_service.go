@@ -30,7 +30,10 @@ func (c *InstitutionService) GetAllInstitution(e echo.Context) error {
 	ctx, span := utils.StartSpan(e, "GetAllInstitution")
 	defer span.Finish()
 
-	res, err := c.uc.GetAllInstitution(ctx)
+	pagination := utils.ParsePaginationFromQuery(e)
+	filter := utils.ParseFilterFromQuery(e)
+
+	res, pagination, err := c.uc.GetAllInstitution(ctx, pagination, filter)
 	if err != nil {
 		utils.LogEventError(span, err)
 		return utils.LogError(e, err, nil)
@@ -39,9 +42,10 @@ func (c *InstitutionService) GetAllInstitution(e echo.Context) error {
 	utils.LogEvent(span, "Response", res)
 
 	return e.JSON(http.StatusOK, model.Response{
-		Code:    200,
-		Message: "Success Get All Institution",
-		Data:    res,
+		Code:       200,
+		Message:    "Success Get All Institution",
+		Data:       res,
+		Pagination: pagination,
 	})
 }
 

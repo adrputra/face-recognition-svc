@@ -13,7 +13,7 @@ import (
 
 type InterfaceParamController interface {
 	GetParameterByKey(ctx context.Context, key string) (*model.Param, error)
-	GetAllParam(ctx context.Context) ([]*model.Param, error)
+	GetAllParam(ctx context.Context, pagination *model.Pagination, filter *model.Filter) ([]*model.Param, *model.Pagination, error)
 	InsertNewParam(ctx context.Context, param *model.Param) error
 	UpdateParam(ctx context.Context, param *model.Param) error
 	DeleteParam(ctx context.Context, key string) error
@@ -73,21 +73,23 @@ func (c *ParamController) GetParameterByKey(ctx context.Context, key string) (*m
 	return res, nil
 }
 
-func (c *ParamController) GetAllParam(ctx context.Context) ([]*model.Param, error) {
+func (c *ParamController) GetAllParam(ctx context.Context, pagination *model.Pagination, filter *model.Filter) ([]*model.Param, *model.Pagination, error) {
 	span, ctx := utils.SpanFromContext(ctx, "Controller: GetAllParam")
 	defer span.Finish()
 
-	utils.LogEvent(span, "Request", "All")
+	utils.LogEvent(span, "Request", pagination)
+	utils.LogEvent(span, "Filter", filter)
 
-	res, err := c.client.GetAllParam(ctx)
+	res, pagination, err := c.client.GetAllParam(ctx, pagination, filter)
 	if err != nil {
 		utils.LogEventError(span, err)
-		return nil, err
+		return nil, nil, err
 	}
 
 	utils.LogEvent(span, "Response", res)
+	utils.LogEvent(span, "Pagination", pagination)
 
-	return res, nil
+	return res, pagination, nil
 }
 
 func (c *ParamController) InsertNewParam(ctx context.Context, param *model.Param) error {

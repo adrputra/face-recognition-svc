@@ -4,13 +4,16 @@ import (
 	"context"
 	"face-recognition-svc/app/model"
 	"face-recognition-svc/app/utils"
+	"fmt"
+	"net/http"
+	"strings"
 
 	"gorm.io/gorm"
 )
 
 type InterfaceParamClient interface {
 	GetParameterByKey(ctx context.Context, key string) (*model.Param, error)
-	GetAllParam(ctx context.Context) ([]*model.Param, error)
+	GetAllParam(ctx context.Context, pagination *model.Pagination, filter *model.Filter) ([]*model.Param, *model.Pagination, error)
 	InsertNewParam(ctx context.Context, param *model.Param) error
 	UpdateParam(ctx context.Context, param *model.Param) error
 	DeleteParam(ctx context.Context, key string) error
@@ -43,23 +46,62 @@ func (c *ParamClient) GetParameterByKey(ctx context.Context, key string) (*model
 	return result, nil
 }
 
-func (c *ParamClient) GetAllParam(ctx context.Context) ([]*model.Param, error) {
-	span, ctx := utils.SpanFromContext(ctx, "Client: GetDatasetList")
+func (c *ParamClient) GetAllParam(ctx context.Context, pagination *model.Pagination, filter *model.Filter) ([]*model.Param, *model.Pagination, error) {
+	span, _ := utils.SpanFromContext(ctx, "Client: GetAllParam")
 	defer span.Finish()
+
+	// Build WHERE clause for search
+	searchFields := []string{"id", "value", "description"}
+	whereClause := utils.BuildSearchWhereClause(filter.Search, searchFields)
+
+	// Get total count for pagination
+	var totalCount int64
+	countQuery := "SELECT COUNT(*) FROM parameter" + whereClause
+	countResult := c.db.Debug().WithContext(ctx).Raw(countQuery).Scan(&totalCount)
+	if countResult.Error != nil {
+		utils.LogEventError(span, countResult.Error)
+		return nil, nil, model.ThrowError(http.StatusInternalServerError, countResult.Error)
+	}
+
+	pagination.Total = int(totalCount)
+	if pagination.Limit > 0 {
+		pagination.TotalPages = (pagination.Total + pagination.Limit - 1) / pagination.Limit
+	} else {
+		pagination.TotalPages = 1
+	}
 
 	var result []*model.Param
 
-	query := "SELECT * FROM parameter"
-	err := c.db.Debug().WithContext(ctx).Raw(query).Scan(&result).Error
+	// Define allowed sort fields
+	allowedSortFields := map[string]string{
+		"id":          "id",
+		"value":       "value",
+		"description": "description",
+		"updated_at":  "updated_at",
+	}
+	orderByClause := utils.BuildOrderByClause(filter, allowedSortFields, "id")
 
-	if err != nil {
-		utils.LogEventError(span, err)
-		return nil, err
+	sb := strings.Builder{}
+	sb.WriteString("SELECT * FROM parameter")
+	sb.WriteString(whereClause)
+	sb.WriteString(orderByClause)
+	if pagination != nil {
+		sb.WriteString(fmt.Sprintf(" LIMIT %d OFFSET %d", pagination.Limit, (pagination.Page-1)*pagination.Limit))
+	}
+	query := sb.String()
+
+	utils.LogEvent(span, "Query", query)
+
+	resultQuery := c.db.Debug().WithContext(ctx).Raw(query).Scan(&result)
+	if resultQuery.Error != nil {
+		utils.LogEventError(span, resultQuery.Error)
+		return nil, nil, model.ThrowError(http.StatusInternalServerError, resultQuery.Error)
 	}
 
 	utils.LogEvent(span, "Response", result)
+	utils.LogEvent(span, "Pagination", pagination)
 
-	return result, nil
+	return result, pagination, nil
 }
 
 func (c *ParamClient) InsertNewParam(ctx context.Context, param *model.Param) error {

@@ -10,7 +10,7 @@ import (
 )
 
 type InterfaceInstitutionController interface {
-	GetAllInstitution(ctx context.Context) ([]*model.Institution, error)
+	GetAllInstitution(ctx context.Context, pagination *model.Pagination, filter *model.Filter) ([]*model.Institution, *model.Pagination, error)
 	GetInstitutionByID(ctx context.Context, id string) (*model.Institution, error)
 	InsertNewInstitution(ctx context.Context, institution *model.Institution) error
 	UpdateInstitution(ctx context.Context, institution *model.Institution) error
@@ -25,17 +25,23 @@ func NewInstitutionController(institutionClient client.InterfaceInstitutionClien
 	return &InstitutionController{institutionClient: institutionClient}
 }
 
-func (c *InstitutionController) GetAllInstitution(ctx context.Context) ([]*model.Institution, error) {
+func (c *InstitutionController) GetAllInstitution(ctx context.Context, pagination *model.Pagination, filter *model.Filter) ([]*model.Institution, *model.Pagination, error) {
 	span, ctx := utils.SpanFromContext(ctx, "Controller: GetAllInstitution")
 	defer span.Finish()
 
-	res, err := c.institutionClient.GetAllInstitutions(ctx)
+	utils.LogEvent(span, "Request", pagination)
+	utils.LogEvent(span, "Filter", filter)
+
+	res, pagination, err := c.institutionClient.GetAllInstitutions(ctx, pagination, filter)
 	if err != nil {
 		utils.LogEventError(span, err)
-		return nil, err
+		return nil, nil, err
 	}
 
-	return res, nil
+	utils.LogEvent(span, "Response", res)
+	utils.LogEvent(span, "Pagination", pagination)
+
+	return res, pagination, nil
 }
 
 func (c *InstitutionController) GetInstitutionByID(ctx context.Context, id string) (*model.Institution, error) {

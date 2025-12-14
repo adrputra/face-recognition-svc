@@ -12,16 +12,16 @@ import (
 
 type InterfaceRoleController interface {
 	CreateNewRoleMapping(ctx context.Context, request *model.MenuRoleMapping) error
-	GetAllRoleMapping(ctx context.Context) ([]*model.MenuRoleMapping, error)
+	GetAllRoleMapping(ctx context.Context, pagination *model.Pagination, filter *model.Filter) ([]*model.MenuRoleMapping, *model.Pagination, error)
 	UpdateRoleMapping(ctx context.Context, request *model.MenuRoleMapping) error
 	DeleteRoleMapping(ctx context.Context, id string) error
 
-	GetAllMenu(ctx context.Context) ([]*model.Menu, error)
+	GetAllMenu(ctx context.Context, pagination *model.Pagination, filter *model.Filter) ([]*model.Menu, *model.Pagination, error)
 	CreateNewMenu(ctx context.Context, request *model.Menu) error
 	UpdateMenu(ctx context.Context, request *model.Menu) error
 	DeleteMenu(ctx context.Context, id string) error
 
-	GetAllRole(ctx context.Context) ([]*model.Role, error)
+	GetAllRole(ctx context.Context, pagination *model.Pagination, filter *model.Filter) ([]*model.Role, *model.Pagination, error)
 	CreateNewRole(ctx context.Context, request *model.Role) error
 }
 
@@ -61,19 +61,23 @@ func (c *RoleController) CreateNewRoleMapping(ctx context.Context, request *mode
 	return nil
 }
 
-func (c *RoleController) GetAllRoleMapping(ctx context.Context) ([]*model.MenuRoleMapping, error) {
+func (c *RoleController) GetAllRoleMapping(ctx context.Context, pagination *model.Pagination, filter *model.Filter) ([]*model.MenuRoleMapping, *model.Pagination, error) {
 	span, ctx := utils.SpanFromContext(ctx, "Controller: GetAllRoleMapping")
 	defer span.Finish()
 
-	response, err := c.roleClient.GetAllRoleMapping(ctx)
+	utils.LogEvent(span, "Request", pagination)
+	utils.LogEvent(span, "Filter", filter)
+
+	response, pagination, err := c.roleClient.GetAllRoleMapping(ctx, pagination, filter)
 	if err != nil {
 		utils.LogEventError(span, err)
-		return nil, err
+		return nil, nil, err
 	}
 
 	utils.LogEvent(span, "Response", response)
+	utils.LogEvent(span, "Pagination", pagination)
 
-	return response, nil
+	return response, pagination, nil
 }
 
 func (c *RoleController) UpdateRoleMapping(ctx context.Context, request *model.MenuRoleMapping) error {
@@ -101,19 +105,23 @@ func (c *RoleController) UpdateRoleMapping(ctx context.Context, request *model.M
 	return nil
 }
 
-func (c *RoleController) GetAllMenu(ctx context.Context) ([]*model.Menu, error) {
+func (c *RoleController) GetAllMenu(ctx context.Context, pagination *model.Pagination, filter *model.Filter) ([]*model.Menu, *model.Pagination, error) {
 	span, ctx := utils.SpanFromContext(ctx, "Controller: GetAllMenu")
 	defer span.Finish()
 
-	response, err := c.roleClient.GetAllMenu(ctx)
+	utils.LogEvent(span, "Request", pagination)
+	utils.LogEvent(span, "Filter", filter)
+
+	response, pagination, err := c.roleClient.GetAllMenu(ctx, pagination, filter)
 	if err != nil {
 		utils.LogEventError(span, err)
-		return nil, err
+		return nil, nil, err
 	}
 
 	utils.LogEvent(span, "Response", response)
+	utils.LogEvent(span, "Pagination", pagination)
 
-	return response, nil
+	return response, pagination, nil
 }
 
 func (c *RoleController) CreateNewMenu(ctx context.Context, request *model.Menu) error {
@@ -142,19 +150,23 @@ func (c *RoleController) CreateNewMenu(ctx context.Context, request *model.Menu)
 	return nil
 }
 
-func (c *RoleController) GetAllRole(ctx context.Context) ([]*model.Role, error) {
+func (c *RoleController) GetAllRole(ctx context.Context, pagination *model.Pagination, filter *model.Filter) ([]*model.Role, *model.Pagination, error) {
 	span, ctx := utils.SpanFromContext(ctx, "Controller: GetAllRole")
 	defer span.Finish()
 
-	response, err := c.roleClient.GetAllRole(ctx)
+	utils.LogEvent(span, "Request", pagination)
+	utils.LogEvent(span, "Filter", filter)
+
+	response, pagination, err := c.roleClient.GetAllRole(ctx, pagination, filter)
 	if err != nil {
 		utils.LogEventError(span, err)
-		return nil, err
+		return nil, nil, err
 	}
 
 	utils.LogEvent(span, "Response", response)
+	utils.LogEvent(span, "Pagination", pagination)
 
-	return response, nil
+	return response, pagination, nil
 }
 
 func (c *RoleController) CreateNewRole(ctx context.Context, request *model.Role) error {

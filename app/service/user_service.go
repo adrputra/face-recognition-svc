@@ -164,18 +164,21 @@ func (s *UserService) GetAllUser(e echo.Context) error {
 	ctx, span := utils.StartSpan(e, "GetAlluser")
 	defer span.Finish()
 
-	users, err := s.uc.GetAllUser(ctx)
+	pagination := utils.ParsePaginationFromQuery(e)
+	filter := utils.ParseFilterFromQuery(e)
+
+	users, pagination, err := s.uc.GetAllUser(ctx, pagination, filter)
 	if err != nil {
 		utils.LogEventError(span, err)
 		return utils.LogError(e, err, nil)
 	}
 
 	utils.LogEvent(span, "Response", users)
-
 	return e.JSON(http.StatusOK, model.Response{
-		Code:    200,
-		Message: "Success Get All User",
-		Data:    users,
+		Code:       200,
+		Message:    "Success Get All User",
+		Data:       users,
+		Pagination: pagination,
 	})
 }
 

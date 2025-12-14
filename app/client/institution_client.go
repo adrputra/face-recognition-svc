@@ -5,13 +5,15 @@ import (
 	"errors"
 	"face-recognition-svc/app/model"
 	"face-recognition-svc/app/utils"
+	"fmt"
 	"net/http"
+	"strings"
 
 	"gorm.io/gorm"
 )
 
 type InterfaceInstitutionClient interface {
-	GetAllInstitutions(ctx context.Context) ([]*model.Institution, error)
+	GetAllInstitutions(ctx context.Context, pagination *model.Pagination, filter *model.Filter) ([]*model.Institution, *model.Pagination, error)
 	GetInstitutionByID(ctx context.Context, id string) (*model.Institution, error)
 	CreateNewInstitution(ctx context.Context, institution *model.Institution) error
 	UpdateInstitution(ctx context.Context, institution *model.Institution) error
@@ -26,28 +28,68 @@ func NewInstitutionClient(db *gorm.DB) InterfaceInstitutionClient {
 	return &InstitutionClient{db: db}
 }
 
-func (c *InstitutionClient) GetAllInstitutions(ctx context.Context) ([]*model.Institution, error) {
+func (c *InstitutionClient) GetAllInstitutions(ctx context.Context, pagination *model.Pagination, filter *model.Filter) ([]*model.Institution, *model.Pagination, error) {
 	span, _ := utils.SpanFromContext(ctx, "Client: GetAllInstitutions")
 	defer span.Finish()
 
-	utils.LogEvent(span, "Request", "All")
+	// Build WHERE clause for search
+	searchFields := []string{"name", "address", "email", "phone_number"}
+	whereClause := utils.BuildSearchWhereClause(filter.Search, searchFields)
+
+	// Get total count for pagination
+	var totalCount int64
+	countQuery := "SELECT COUNT(*) FROM institution" + whereClause
+	countResult := c.db.Debug().WithContext(ctx).Raw(countQuery).Scan(&totalCount)
+	if countResult.Error != nil {
+		utils.LogEventError(span, countResult.Error)
+		return nil, nil, model.ThrowError(http.StatusInternalServerError, countResult.Error)
+	}
+
+	pagination.Total = int(totalCount)
+	if pagination.Limit > 0 {
+		pagination.TotalPages = (pagination.Total + pagination.Limit - 1) / pagination.Limit
+	} else {
+		pagination.TotalPages = 1
+	}
+
 	var response []*model.Institution
 
-	query := "SELECT * FROM institution"
+	// Define allowed sort fields
+	allowedSortFields := map[string]string{
+		"id":           "id",
+		"name":         "name",
+		"address":      "address",
+		"email":        "email",
+		"phone_number": "phone_number",
+		"created_at":   "created_at",
+	}
+	orderByClause := utils.BuildOrderByClause(filter, allowedSortFields, "id")
+
+	sb := strings.Builder{}
+	sb.WriteString("SELECT * FROM institution")
+	sb.WriteString(whereClause)
+	sb.WriteString(orderByClause)
+	if pagination != nil {
+		sb.WriteString(fmt.Sprintf(" LIMIT %d OFFSET %d", pagination.Limit, (pagination.Page-1)*pagination.Limit))
+	}
+	query := sb.String()
+
 	utils.LogEvent(span, "Query", query)
 
-	err := c.db.Debug().Raw(query).Scan(&response).Error
-	if err != nil {
-		utils.LogEventError(span, err)
-		return nil, err
+	result := c.db.Debug().WithContext(ctx).Raw(query).Scan(&response)
+	if result.Error != nil {
+		utils.LogEventError(span, result.Error)
+		return nil, nil, model.ThrowError(http.StatusInternalServerError, result.Error)
 	}
 
 	if response == nil {
-		return nil, model.ThrowError(http.StatusInternalServerError, errors.New("Data Not Found"))
+		return nil, nil, model.ThrowError(http.StatusInternalServerError, errors.New("Data Not Found"))
 	}
 
 	utils.LogEvent(span, "Response", response)
-	return response, nil
+	utils.LogEvent(span, "Pagination", pagination)
+
+	return response, pagination, nil
 }
 
 func (c *InstitutionClient) GetInstitutionByID(ctx context.Context, id string) (*model.Institution, error) {

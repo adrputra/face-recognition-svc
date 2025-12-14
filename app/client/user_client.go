@@ -23,7 +23,7 @@ type InterfaceUserClient interface {
 	UpdateUser(ctx context.Context, user *model.User) error
 	DeleteUser(ctx context.Context, username string) error
 	CreateAccessToken(ctx context.Context, user *model.User, isLogout bool, menuMapping map[string]string) (t string, expired int64, err error)
-	GetAllUser(ctx context.Context, roleLevel int, institutionID string) ([]*model.User, error)
+	GetAllUser(ctx context.Context, roleLevel int, institutionID string, pagination *model.Pagination, filter *model.Filter) ([]*model.User, *model.Pagination, error)
 	GetInstitutionList(ctx context.Context) ([]string, error)
 	UpdateProfilePhoto(ctx context.Context, url string, username string) error
 	UpdateCoverPhoto(ctx context.Context, url string, username string) error
@@ -161,7 +161,6 @@ func (r *UserClient) CreateAccessToken(ctx context.Context, user *model.User, is
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(exp),
 		},
-		MenuMapping:   menuMapping,
 		InstitutionID: user.InstitutionID,
 	}
 	expired = exp.Unix()
@@ -177,16 +176,67 @@ func (r *UserClient) CreateAccessToken(ctx context.Context, user *model.User, is
 	return t, expired, nil
 }
 
-func (r *UserClient) GetAllUser(ctx context.Context, roleLevel int, institutionID string) ([]*model.User, error) {
+func (r *UserClient) GetAllUser(ctx context.Context, roleLevel int, institutionID string, pagination *model.Pagination, filter *model.Filter) ([]*model.User, *model.Pagination, error) {
 	span, ctx := utils.SpanFromContext(ctx, "Client: GetAllUser")
 	defer span.Finish()
 
 	var response []*model.User
 
-	sb := strings.Builder{}
-
+	// Build WHERE clause for role level
+	whereConditions := []string{}
 	if roleLevel == 2 {
-		sb.WriteString(fmt.Sprintf(" WHERE u.institution_id = '%s'", institutionID))
+		whereConditions = append(whereConditions, fmt.Sprintf("u.institution_id = '%s'", institutionID))
+	}
+
+	// Build WHERE clause for search
+	searchFields := []string{"u.username", "u.fullname", "u.shortname", "u.email", "i.name", "r.role_name"}
+	searchClause := utils.BuildSearchWhereClause(filter.Search, searchFields)
+	if searchClause != "" {
+		// Remove " WHERE " prefix and add condition
+		searchCondition := strings.TrimPrefix(searchClause, " WHERE ")
+		whereConditions = append(whereConditions, "("+searchCondition+")")
+	}
+
+	whereClause := ""
+	if len(whereConditions) > 0 {
+		whereClause = " WHERE " + strings.Join(whereConditions, " AND ")
+	}
+
+	// Get total count for pagination
+	var totalCount int64
+	countQuery := "SELECT COUNT(*) FROM users AS u LEFT JOIN institution AS i ON u.institution_id = i.id LEFT JOIN role AS r ON u.role_id = r.id" + whereClause
+	countResult := r.db.Debug().WithContext(ctx).Raw(countQuery).Scan(&totalCount)
+	if countResult.Error != nil {
+		utils.LogEventError(span, countResult.Error)
+		return nil, nil, model.ThrowError(http.StatusInternalServerError, countResult.Error)
+	}
+
+	// Calculate total pages
+	pagination.Total = int(totalCount)
+	if pagination.Limit > 0 {
+		pagination.TotalPages = (pagination.Total + pagination.Limit - 1) / pagination.Limit
+	} else {
+		pagination.TotalPages = 1
+	}
+
+	// Define allowed sort fields with their actual column names
+	allowedSortFields := map[string]string{
+		"username":         "u.username",
+		"fullname":         "u.fullname",
+		"shortname":        "u.shortname",
+		"email":            "u.email",
+		"institution_name": "i.name",
+		"role_name":        "r.role_name",
+		"created_at":       "u.created_at",
+	}
+	orderByClause := utils.BuildOrderByClause(filter, allowedSortFields, "u.username")
+
+	// Build query with pagination
+	sb := strings.Builder{}
+	sb.WriteString(whereClause)
+	sb.WriteString(orderByClause)
+	if pagination != nil {
+		sb.WriteString(fmt.Sprintf(" LIMIT %d OFFSET %d", pagination.Limit, (pagination.Page-1)*pagination.Limit))
 	}
 
 	query := "SELECT u.username, u.fullname, u.shortname, u.email, u.institution_id, u.role_id, u.address, u.phone_number, u.gender, u.religion, u.created_at, i.name AS institution_name, r.role_name FROM users AS u LEFT JOIN institution AS i ON u.institution_id = i.id LEFT JOIN role AS r ON u.role_id = r.id"
@@ -194,12 +244,13 @@ func (r *UserClient) GetAllUser(ctx context.Context, roleLevel int, institutionI
 
 	if result.Error != nil {
 		utils.LogEventError(span, result.Error)
-		return nil, model.ThrowError(http.StatusInternalServerError, result.Error)
+		return nil, nil, model.ThrowError(http.StatusInternalServerError, result.Error)
 	}
 
 	utils.LogEvent(span, "Response", response)
+	utils.LogEvent(span, "Pagination", pagination)
 
-	return response, nil
+	return response, pagination, nil
 }
 
 func (r *UserClient) GetInstitutionList(ctx context.Context) ([]string, error) {

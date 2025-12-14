@@ -11,8 +11,8 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
-	"github.com/opentracing/opentracing-go/log"
-	"github.com/sirupsen/logrus"
+	otlog "github.com/opentracing/opentracing-go/log"
+	"github.com/rs/zerolog/log"
 	"github.com/uber/jaeger-client-go"
 	"github.com/uber/jaeger-client-go/config"
 )
@@ -34,7 +34,7 @@ func InitJaeger(c *conf.Config) (opentracing.Tracer, io.Closer, error) {
 	var err error
 	var closer io.Closer
 	Tracer, closer, err = cfg.NewTracer(config.Logger(jaeger.StdLogger))
-	logrus.Printf("JAEGER RUNNING ON %s:%s\n", c.Jaeger.Host, c.Jaeger.Port)
+	log.Info().Str("host", c.Jaeger.Host).Str("port", c.Jaeger.Port).Msg("JAEGER RUNNING ON")
 	return Tracer, closer, err
 }
 
@@ -61,19 +61,19 @@ func SpanFromContext(ctx context.Context, funcDesc string) (opentracing.Span, co
 func LogEvent(span opentracing.Span, desc string, event any) {
 	if str, ok := event.(string); ok {
 		// If event is a string, log it directly
-		span.LogFields(log.Object(desc, str))
+		span.LogFields(otlog.Object(desc, str))
 	} else {
 		// If event is not a string, marshal it to JSON and log
 		jsonData, err := json.Marshal(event)
 		if err != nil {
 			// If marshalling fails, log the error and event as a fallback
 			span.LogFields(
-				log.Object("error", err.Error()),
-				log.Object(desc, "error marshalling event"),
+				otlog.Object("error", err.Error()),
+				otlog.Object(desc, "error marshalling event"),
 			)
 		} else {
 			span.LogFields(
-				log.Object(desc, string(jsonData)),
+				otlog.Object(desc, string(jsonData)),
 			)
 		}
 	}
@@ -81,7 +81,7 @@ func LogEvent(span opentracing.Span, desc string, event any) {
 
 func LogEventError(span opentracing.Span, err error) {
 	span.SetTag("error", true)
-	span.LogFields(log.String("error", err.Error()))
+	span.LogFields(otlog.String("error", err.Error()))
 }
 
 func Inject(span opentracing.Span, request *http.Request) error {

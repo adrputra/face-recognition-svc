@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 )
 
@@ -17,7 +17,7 @@ func InitConfig() {
 	err := viper.MergeInConfig()
 
 	if err != nil {
-		logrus.Panicf("Failed to load config: %v", err)
+		log.Panic().Err(err).Msg("Failed to load config")
 	}
 
 	for _, k := range viper.AllKeys() {

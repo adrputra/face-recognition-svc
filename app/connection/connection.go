@@ -5,7 +5,6 @@ import (
 	"crypto/tls"
 	"face-recognition-svc/app/config"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -14,7 +13,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/redis/go-redis/v9"
-	"github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -41,14 +40,14 @@ func NewDatabaseConnection(c *config.Database) *gorm.DB {
 		c.Database,
 		c.Port)
 
-	logrus.Println(dataSourceName)
+	log.Info().Msg(dataSourceName)
 
 	db, err := gorm.Open(postgres.Open(dataSourceName), &gorm.Config{})
 	if err != nil {
-		logrus.Panicf("Cannot Connect To Database %s: %v", c.Database, err)
+		log.Panic().Str("database", c.Database).Err(err).Msg("Cannot Connect To Database")
 	}
 
-	logrus.Printf("Connected To Database %s", c.Database)
+	log.Info().Str("database", c.Database).Msg("Connected To Database")
 
 	return db
 }
@@ -81,11 +80,11 @@ func NewStorageConnection(cfg *config.MinioS3) *s3.S3 {
 	})
 
 	if err != nil {
-		logrus.Panicf("Cannot Connect To Minio: %v", err)
+		log.Panic().Err(err).Msg("Cannot Connect To Minio")
 	}
 
-	logrus.Println(cfg.Username, cfg.SecretKey)
-	logrus.Printf("Connected To Minio at %s:%s", cfg.Host, cfg.Port)
+	log.Info().Str("username", cfg.Username).Str("host", cfg.Host).Str("port", cfg.Port).Msg("Minio credentials")
+	log.Info().Str("host", cfg.Host).Str("port", cfg.Port).Msg("Connected To Minio")
 
 	return s3.New(sess)
 }
@@ -100,25 +99,25 @@ func NewRedisConnection(c *config.Redis, ctx context.Context) *redis.Client {
 	// Test the connection
 	pong, err := rdb.Ping(ctx).Result()
 	if err != nil {
-		log.Fatalf("Could not connect to Redis: %v", err)
+		log.Fatal().Err(err).Msg("Could not connect to Redis")
 	}
-	fmt.Println("Connected to Redis:", pong)
+	log.Info().Str("pong", pong).Msg("Connected to Redis")
 
 	return rdb
 
 }
 
 func NewRabbitMQConnection(c *config.RabbitMQ) *amqp.Channel {
-	logrus.Printf(fmt.Sprintf("amqp://%s:%s@%s:%s/", c.Username, c.Password, c.Host, c.Port))
+	log.Info().Str("url", fmt.Sprintf("amqp://%s:%s@%s:%s/", c.Username, c.Password, c.Host, c.Port)).Msg("RabbitMQ connection string")
 	conn, err := amqp.Dial(fmt.Sprintf("amqp://%s:%s@%s:%s/", c.Username, c.Password, c.Host, c.Port))
 	if err != nil {
-		logrus.Panicf("Cannot Connect To RabbitMQ: %v", err)
+		log.Panic().Err(err).Msg("Cannot Connect To RabbitMQ")
 	}
-	logrus.Printf("Connected To RabbitMQ at %s:%s", c.Host, c.Port)
+	log.Info().Str("host", c.Host).Str("port", c.Port).Msg("Connected To RabbitMQ")
 
 	ch, err := conn.Channel()
 	if err != nil {
-		log.Fatalf("Failed to open a channel: %v", err)
+		log.Fatal().Err(err).Msg("Failed to open a channel")
 	}
 
 	return ch

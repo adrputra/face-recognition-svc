@@ -7,13 +7,12 @@ import (
 	"face-recognition-svc/app/model"
 	"face-recognition-svc/app/utils"
 	"fmt"
-	"log"
 	"net/http"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 	"gorm.io/gorm"
 )
 
@@ -90,7 +89,7 @@ func (c *StorageClient) DeleteObject(ctx context.Context, bucket string, prefix 
 		Prefix: aws.String(prefix),
 	}
 
-	logrus.Printf("Deleting objects under prefix %s\n", bucket, prefix)
+	log.Info().Str("bucket", bucket).Str("prefix", prefix).Msg("Deleting objects under prefix")
 
 	for {
 		// Get a batch of objects
@@ -111,7 +110,7 @@ func (c *StorageClient) DeleteObject(ctx context.Context, bucket string, prefix 
 			return model.ThrowError(http.StatusNotFound, errors.New("No Objects to delete"))
 		}
 
-		logrus.Println(deleteObjects)
+		log.Info().Interface("delete_objects", deleteObjects).Msg("Objects to delete")
 
 		// Perform the delete operation
 		_, err = c.s3.DeleteObjectsWithContext(context.TODO(), &s3.DeleteObjectsInput{
@@ -212,7 +211,7 @@ func (c *StorageClient) GetDatasetsByUsername(ctx context.Context, bucket string
 		})
 		urlStr, err := req.Presign(2 * time.Hour) // URL valid for 15 minutes
 		if err != nil {
-			log.Printf("Failed to generate URL for %s: %v\n", *object.Key, err)
+			log.Error().Str("key", *object.Key).Err(err).Msg("Failed to generate URL")
 			continue
 		}
 

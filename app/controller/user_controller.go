@@ -2,13 +2,18 @@ package controller
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"face-recognition-svc/app/client"
+	"face-recognition-svc/app/config"
 	"face-recognition-svc/app/model"
 	"face-recognition-svc/app/utils"
 	"fmt"
 	"net/http"
+	"strconv"
+	"time"
 
+	"github.com/redis/go-redis/v9"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -18,7 +23,7 @@ type InterfaceUserController interface {
 	UpdateUser(ctx context.Context, request *model.User) error
 	DeleteUser(ctx context.Context, username string) error
 	Login(ctx context.Context, request *model.RequestLogin) (*model.ResponseLogin, error)
-	GetAllUser(ctx context.Context) ([]*model.User, error)
+	GetAllUser(ctx context.Context, pagination *model.Pagination, filter *model.Filter) ([]*model.User, *model.Pagination, error)
 	GetInstitutionList(ctx context.Context) ([]string, error)
 
 	UploadProfilePhoto(ctx context.Context, file *model.File) error
@@ -30,14 +35,18 @@ type UserController struct {
 	roleClient    client.InterfaceRoleClient
 	paramClient   client.InterfaceParamClient
 	storageClient client.InterfaceStorageClient
+	config        *config.Config
+	redis         *redis.Client
 }
 
-func NewUserController(userClient client.InterfaceUserClient, roleClient client.InterfaceRoleClient, paramClient client.InterfaceParamClient, storageClient client.InterfaceStorageClient) *UserController {
+func NewUserController(userClient client.InterfaceUserClient, roleClient client.InterfaceRoleClient, paramClient client.InterfaceParamClient, storageClient client.InterfaceStorageClient, config *config.Config, redis *redis.Client) *UserController {
 	return &UserController{
 		userClient:    userClient,
 		roleClient:    roleClient,
 		paramClient:   paramClient,
 		storageClient: storageClient,
+		config:        config,
+		redis:         redis,
 	}
 }
 
@@ -170,6 +179,20 @@ func (c *UserController) Login(ctx context.Context, request *model.RequestLogin)
 		return nil, model.ThrowError(http.StatusInternalServerError, err)
 	}
 
+	// Marshal menu mapping to JSON before storing in Redis
+	menuMappingJSON, err := json.Marshal(menuMapping)
+	if err != nil {
+		utils.LogEventError(span, err)
+		return nil, model.ThrowError(http.StatusInternalServerError, err)
+	}
+
+	ExpireCount, _ := strconv.Atoi(c.config.Auth.AccessExpiry)
+	err = c.redis.Set(ctx, user.RoleID, menuMappingJSON, time.Duration(ExpireCount)*time.Hour).Err()
+	if err != nil {
+		utils.LogEventError(span, err)
+		return nil, model.ThrowError(http.StatusInternalServerError, err)
+	}
+
 	response := &model.ResponseLogin{
 		Username:        user.Username,
 		Fullname:        user.Fullname,
@@ -187,31 +210,34 @@ func (c *UserController) Login(ctx context.Context, request *model.RequestLogin)
 	return response, nil
 }
 
-func (c *UserController) GetAllUser(ctx context.Context) ([]*model.User, error) {
+func (c *UserController) GetAllUser(ctx context.Context, pagination *model.Pagination, filter *model.Filter) ([]*model.User, *model.Pagination, error) {
 	span, ctx := utils.SpanFromContext(ctx, "Controller: GetAllUser")
 	defer span.Finish()
+
+	utils.LogEvent(span, "Request", pagination)
+	utils.LogEvent(span, "Filter", filter)
 
 	session, err := utils.GetMetadata(ctx)
 	if err != nil {
 		utils.LogEventError(span, err)
-		return nil, err
+		return nil, nil, err
 	}
 
 	role, err := c.roleClient.GetRoleByID(ctx, session.RoleID)
 	if err != nil {
 		utils.LogEventError(span, err)
-		return nil, err
+		return nil, nil, err
 	}
 
-	users, err := c.userClient.GetAllUser(ctx, role.Level, session.InstitutionID)
+	users, pagination, err := c.userClient.GetAllUser(ctx, role.Level, session.InstitutionID, pagination, filter)
 	if err != nil {
 		utils.LogEventError(span, err)
-		return nil, err
+		return nil, nil, err
 	}
 
 	utils.LogEvent(span, "Response", users)
 
-	return users, nil
+	return users, pagination, nil
 }
 
 func (c *UserController) GetInstitutionList(ctx context.Context) ([]string, error) {

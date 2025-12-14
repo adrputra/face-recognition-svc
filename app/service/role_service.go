@@ -66,7 +66,10 @@ func (s *RoleService) GetAllRoleMapping(e echo.Context) error {
 	ctx, span := utils.StartSpan(e, "GetAllRoleMapping")
 	defer span.Finish()
 
-	response, err := s.uc.GetAllRoleMapping(ctx)
+	pagination := utils.ParsePaginationFromQuery(e)
+	filter := utils.ParseFilterFromQuery(e)
+
+	response, pagination, err := s.uc.GetAllRoleMapping(ctx, pagination, filter)
 	if err != nil {
 		utils.LogEventError(span, err)
 		return utils.LogError(e, err, nil)
@@ -75,9 +78,10 @@ func (s *RoleService) GetAllRoleMapping(e echo.Context) error {
 	utils.LogEvent(span, "Response", response)
 
 	return e.JSON(http.StatusOK, model.Response{
-		Code:    200,
-		Message: "Success Get All Role",
-		Data:    response,
+		Code:       200,
+		Message:    "Success Get All Role",
+		Data:       response,
+		Pagination: pagination,
 	})
 }
 
@@ -112,7 +116,10 @@ func (s *RoleService) GetAllMenu(e echo.Context) error {
 	ctx, span := utils.StartSpan(e, "GetAllMenu")
 	defer span.Finish()
 
-	response, err := s.uc.GetAllMenu(ctx)
+	pagination := utils.ParsePaginationFromQuery(e)
+	filter := utils.ParseFilterFromQuery(e)
+
+	response, pagination, err := s.uc.GetAllMenu(ctx, pagination, filter)
 	if err != nil {
 		utils.LogEventError(span, err)
 		return utils.LogError(e, err, nil)
@@ -121,9 +128,10 @@ func (s *RoleService) GetAllMenu(e echo.Context) error {
 	utils.LogEvent(span, "Response", response)
 
 	return e.JSON(http.StatusOK, model.Response{
-		Code:    200,
-		Message: "Success Get All Menu",
-		Data:    response,
+		Code:       200,
+		Message:    "Success Get All Menu",
+		Data:       response,
+		Pagination: pagination,
 	})
 }
 
@@ -158,7 +166,10 @@ func (s *RoleService) GetAllRole(e echo.Context) error {
 	ctx, span := utils.StartSpan(e, "GetAllRole")
 	defer span.Finish()
 
-	response, err := s.uc.GetAllRole(ctx)
+	pagination := utils.ParsePaginationFromQuery(e)
+	filter := utils.ParseFilterFromQuery(e)
+
+	response, pagination, err := s.uc.GetAllRole(ctx, pagination, filter)
 	if err != nil {
 		utils.LogEventError(span, err)
 		return utils.LogError(e, err, nil)
@@ -167,9 +178,10 @@ func (s *RoleService) GetAllRole(e echo.Context) error {
 	utils.LogEvent(span, "Response", response)
 
 	return e.JSON(http.StatusOK, model.Response{
-		Code:    200,
-		Message: "Success Get All Role",
-		Data:    response,
+		Code:       200,
+		Message:    "Success Get All Role",
+		Data:       response,
+		Pagination: pagination,
 	})
 }
 

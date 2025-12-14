@@ -57,7 +57,10 @@ func (s *ParamService) GetAllParam(e echo.Context) error {
 	ctx, span := utils.StartSpan(e, "GetAllParam")
 	defer span.Finish()
 
-	res, err := s.uc.GetAllParam(ctx)
+	pagination := utils.ParsePaginationFromQuery(e)
+	filter := utils.ParseFilterFromQuery(e)
+
+	res, pagination, err := s.uc.GetAllParam(ctx, pagination, filter)
 	if err != nil {
 		utils.LogEventError(span, err)
 		return utils.LogError(e, err, nil)
@@ -66,9 +69,10 @@ func (s *ParamService) GetAllParam(e echo.Context) error {
 	utils.LogEvent(span, "Response", res)
 
 	return e.JSON(http.StatusOK, model.Response{
-		Code:    200,
-		Message: "Success Get All Param",
-		Data:    res,
+		Code:       200,
+		Message:    "Success Get All Param",
+		Data:       res,
+		Pagination: pagination,
 	})
 }
 

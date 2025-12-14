@@ -6,6 +6,7 @@ import (
 	"face-recognition-svc/app/model"
 	"face-recognition-svc/app/router"
 	"face-recognition-svc/app/utils"
+	"os"
 	"strconv"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -13,10 +14,20 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/opentracing/opentracing-go"
-	"github.com/sirupsen/logrus"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 )
 
 func Start() {
+	// Initialize zerolog
+	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
+	log.Logger = zerolog.New(os.Stdout).With().Timestamp().Logger()
+
+	// Initialize console writer, disable on production
+	if os.Getenv("ENV") == "development" {
+		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout})
+	}
+
 	config.InitConfig()
 	cfg := config.GetConfig()
 
@@ -24,7 +35,7 @@ func Start() {
 
 	tracer, closer, err := utils.InitJaeger(cfg)
 	if err != nil {
-		logrus.Fatalf("Failed to initialize Jaeger tracer: %v", err)
+		log.Fatal().Err(err).Msg("Failed to initialize Jaeger tracer")
 	}
 	defer closer.Close()
 
@@ -61,7 +72,7 @@ func Start() {
 	api := public.Group("/service")
 
 	api.Use(echojwt.WithConfig(auth))
-	api.Use(utils.IsAuthorized())
+	api.Use(router.GetFactory().Middleware.Auth.IsAuthorized())
 
 	e.Use(middleware.Logger())
 	router.InitPublicRoute("", public)

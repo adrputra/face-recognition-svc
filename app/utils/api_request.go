@@ -7,7 +7,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 )
 
 func RequestAPI(method string, url string, data interface{}, out interface{}) error {
@@ -44,7 +44,7 @@ func RequestAPI(method string, url string, data interface{}, out interface{}) er
 		return err
 	}
 
-	logrus.Printf("Response: %s", string(bodyBytes))
+	log.Info().Str("response", string(bodyBytes)).Msg("API Response")
 
 	// Unmarshal response JSON into output struct
 	err = json.Unmarshal(bodyBytes, out)
