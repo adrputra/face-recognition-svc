@@ -1,0 +1,1448 @@
+{
+	"info": {
+		"_postman_id": "37641802-d05d-4c7c-8cb0-b18ce086ed02",
+		"name": "Digital Learning",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "12032399",
+		"_collection_link": "https://crimson-firefly-361174.postman.co/workspace/My-Workspace~d9aaeab0-5925-43b2-8a1c-f1e908f9c567/collection/12032399-37641802-d05d-4c7c-8cb0-b18ce086ed02?action=share&source=collection_link&creator=12032399"
+	},
+	"item": [
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/register",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"register"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"johndoe\",\n    \"email\": \"johndoe@example.com\",\n    \"password\": \"P@ssw0rd\",\n    \"fullname\": \"John Doe\",\n    \"shortname\": \"JohnD\",\n    \"role_ids\": [\n        \"671d80dc-3677-460c-af02-a91538fa7107\"\n    ],\n    \"institution_id\": \"12345\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Parse the response JSON",
+									"const loginResponse = pm.response.json();",
+									"",
+									"if (loginResponse.code === 200) {",
+									"    // Extract the token from the response",
+									"    const token = loginResponse.data.token;",
+									"    ",
+									"    // Store the token in an environment variable",
+									"    pm.environment.set(\"token\", token);",
+									"    ",
+									"    // Log a message",
+									"    console.log(token);",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/login",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"login"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"johndoe\",\n    \"password\": \"P@ssw0rd\",\n    \"institution_id\": \"12345\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "User Detail",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/service/user/detail/johndoe",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"service",
+								"user",
+								"detail",
+								"johndoe"
+							]
+						},
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/service/user",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"service",
+								"user"
+							]
+						},
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/service/user",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"service",
+								"user"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"johndoe\",\n    \"email\": \"johndoe@example.com\",\n    \"fullname\": \"John Doe\",\n    \"shortname\": \"JohnD\",\n    \"is_active\": true,\n    \"institution_id\": \"12345\",\n    \"role_ids\": [\n        \"671d80dc-3677-460c-af02-a91538fa7107\"\n    ]\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/service/user/johndoe",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"service",
+								"user",
+								"johndoe"
+							]
+						},
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Institution List",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/service/user/institutions",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"service",
+								"user",
+								"institutions"
+							]
+						},
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload Profile Photo",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/service/user/profile-photo",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"service",
+								"user",
+								"profile-photo"
+							]
+						},
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": [
+										"/path/to/profile.png"
+									]
+								}
+							]
+						},
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload Cover Photo",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/service/user/cover-photo",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"service",
+								"user",
+								"cover-photo"
+							]
+						},
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": [
+										"/path/to/cover.png"
+									]
+								}
+							]
+						},
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Dataset",
+			"item": [
+				{
+					"name": "Upload User Dataset",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/service/dataset",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"service",
+								"dataset"
+							]
+						},
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "username",
+									"value": "johndoe2",
+									"type": "text",
+									"contentType": "multipart/form-data"
+								},
+								{
+									"key": "file",
+									"type": "file",
+									"src": [
+										"/path/to/image1.png"
+									]
+								}
+							]
+						},
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Model Training History",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/service/dataset/model-training-history",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"service",
+								"dataset",
+								"model-training-history"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"institution_id\": \"12345\",\n    \"status\": \"done\",\n    \"is_used\": \"true\",\n    \"order_by\": \"created_at\",\n    \"sort_type\": \"desc\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Datasets By Username",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/service/dataset/12345/johndoe2",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"service",
+								"dataset",
+								"12345",
+								"johndoe2"
+							]
+						},
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Dataset List",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/service/dataset",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"service",
+								"dataset"
+							]
+						},
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Dataset",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/service/dataset/johndoe2",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"service",
+								"dataset",
+								"johndoe2"
+							]
+						},
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Train Model",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/service/dataset/train-model/12345",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"service",
+								"dataset",
+								"train-model",
+								"12345"
+							]
+						},
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Last Train Model",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/service/dataset/last-train-model/12345",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"service",
+								"dataset",
+								"last-train-model",
+								"12345"
+							]
+						},
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Role",
+			"item": [
+				{
+					"name": "Create New Role",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/service/role/create",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"service",
+								"role",
+								"create"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"role_name\": \"Teacher\",\n    \"role_desc\": \"Teacher role\",\n    \"scope\": \"institution\",\n    \"institution_id\": \"12345\",\n    \"is_active\": true,\n    \"is_administrator\": false\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Role Mapping",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/service/role/mapping",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"service",
+								"role",
+								"mapping"
+							]
+						},
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Role",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/service/role",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"service",
+								"role"
+							]
+						},
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create New Role Mapping",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/service/role/mapping/create",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"service",
+								"role",
+								"mapping",
+								"create"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"menu_id\": \"adedaf40-09ee-42e2-859a-a33e3220b05f\",\n    \"role_id\": \"adedaf40-09ee-42e2-859a-a33e3220b05a\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Role Mapping",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/service/role/mapping",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"service",
+								"role",
+								"mapping"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"mapping-id\",\n    \"menu_id\": \"adedaf40-09ee-42e2-859a-a33e3220b05f\",\n    \"role_id\": \"adedaf40-09ee-42e2-859a-a33e3220b05a\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Role Mapping",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/service/role/mapping/mapping-id",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"service",
+								"role",
+								"mapping",
+								"mapping-id"
+							]
+						},
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Menu",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/service/role/menu",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"service",
+								"role",
+								"menu"
+							]
+						},
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create New Menu",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/service/role/menu/create",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"service",
+								"role",
+								"menu",
+								"create"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"menu_key\": \"dashboard\",\n    \"menu_name\": \"Dashboard\",\n    \"menu_route\": \"/dashboard\",\n    \"icon\": \"home\",\n    \"parent_id\": null,\n    \"sort_order\": 1,\n    \"feature_key\": null,\n    \"is_active\": true\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Menu",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/service/role/menu",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"service",
+								"role",
+								"menu"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"menu-id\",\n    \"menu_key\": \"dashboard\",\n    \"menu_name\": \"Dashboard\",\n    \"menu_route\": \"/dashboard\",\n    \"icon\": \"home\",\n    \"parent_id\": null,\n    \"sort_order\": 1,\n    \"feature_key\": null,\n    \"is_active\": true\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Menu",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/service/role/menu/menu-id",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"service",
+								"role",
+								"menu",
+								"menu-id"
+							]
+						},
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Train Model",
+			"item": [
+				{
+					"name": "Train Model",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:5000/train_model",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"train_model"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Processing",
+			"item": [
+				{
+					"name": "Get Objects Institution ID",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"bucket_name\": \"face-dataset\",\n    \"prefix\": \"12345/\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8002/get-objects",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8002",
+							"path": [
+								"get-objects"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Buckets",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8002/get-buckets",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8002",
+							"path": [
+								"get-buckets"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Train Model From Dataset",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"bucket_name\": \"face-dataset\",\n    \"prefix\": \"12345/\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8002/train-model",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8002",
+							"path": [
+								"train-model"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Public",
+			"item": [
+				{
+					"name": "Ping",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/ping",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"ping"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Institution",
+			"item": [
+				{
+					"name": "Get All Institution",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/service/institution",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"service",
+								"institution"
+							]
+						},
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Institution By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/service/institution/12345",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"service",
+								"institution",
+								"12345"
+							]
+						},
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create New Institution",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/service/institution",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"service",
+								"institution"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Example School\",\n    \"code\": \"EXS\",\n    \"address\": \"Example Street\",\n    \"phone_number\": \"0123456789\",\n    \"email\": \"admin@example.edu\",\n    \"is_active\": true\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Institution",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/service/institution",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"service",
+								"institution"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"12345\",\n    \"name\": \"Example School\",\n    \"code\": \"EXS\",\n    \"address\": \"Example Street\",\n    \"phone_number\": \"0123456789\",\n    \"email\": \"admin@example.edu\",\n    \"is_active\": true\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Institution",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/service/institution/12345",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"service",
+								"institution",
+								"12345"
+							]
+						},
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Param",
+			"item": [
+				{
+					"name": "Get Parameter By Key",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/service/param/sample_key",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"service",
+								"param",
+								"sample_key"
+							]
+						},
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Param",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/service/param",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"service",
+								"param"
+							]
+						},
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Insert New Param",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/service/param",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"service",
+								"param"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"key\": \"sample_key\",\n    \"value\": \"sample_value\",\n    \"description\": \"sample description\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Param",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/service/param",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"service",
+								"param"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"key\": \"sample_key\",\n    \"value\": \"updated_value\",\n    \"description\": \"updated description\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Param",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/service/param/sample_key",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"service",
+								"param",
+								"sample_key"
+							]
+						},
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
