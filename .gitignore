@@ -1,3 +1,4 @@
 # config.yaml
 
 /vendor
+/services/gateway/vendor
