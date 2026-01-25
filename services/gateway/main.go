@@ -7,6 +7,6 @@ import (
 
 func main() {
 	os.Setenv("TZ", "Asia/Jakarta")
-	os.Setenv("ENV", "development")
+	// os.Setenv("ENV", "development")
 	app.Start()
 }

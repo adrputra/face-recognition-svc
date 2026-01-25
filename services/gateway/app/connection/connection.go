@@ -33,7 +33,8 @@ func InitConnection(c config.Config) {
 }
 
 func NewDatabaseConnection(c *config.Database) *gorm.DB {
-	dataSourceName := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable TimeZone=Asia/Jakarta",
+	// Use UTC in DSN to avoid DB time zone lookup errors.
+	dataSourceName := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable TimeZone=UTC",
 		c.Host,
 		c.Username,
 		c.Password,
