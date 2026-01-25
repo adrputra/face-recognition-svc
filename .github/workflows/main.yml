@@ -9,9 +9,6 @@ on:
       service_dir:
         required: true
         type: string
-      port:
-        required: true
-        type: number
 
 jobs:
   build:
@@ -22,7 +19,9 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Log in to Docker Hub
-        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+        run: |
+          echo "${{ secrets.DOCKER_PASSWORD }}" | \
+          docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
       - name: Build Docker Image
         run: |
@@ -45,45 +44,20 @@ jobs:
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USER }}
-          passphrase: ${{ secrets.PASSPHRASE }}
           key: ${{ secrets.KEY }}
+          passphrase: ${{ secrets.PASSPHRASE }}
           script: |
             set -e
 
             docker swarm init --advertise-addr $(hostname -I | awk '{print $1}') 2>/dev/null || true
             docker network create --driver overlay main-dev 2>/dev/null || true
 
+            cd /opt/mono-repo/services/${{ inputs.service_dir }}
+
             docker pull ${{ secrets.DOCKER_USERNAME }}/${{ inputs.service_name }}:latest
 
-            cat > /tmp/docker-compose-${{ inputs.service_name }}.yml << EOF
-            version: '3.8'
-
-            services:
-              ${{ inputs.service_name }}:
-                image: ${{ secrets.DOCKER_USERNAME }}/${{ inputs.service_name }}:latest
-                ports:
-                  - "${{ inputs.port }}:${{ inputs.port }}"
-                environment:
-                  - PORT=${{ inputs.port }}
-                deploy:
-                  replicas: 1
-                  restart_policy:
-                    condition: on-failure
-                  resources:
-                    limits:
-                      memory: 512M
-                    reservations:
-                      memory: 256M
-                networks:
-                  - main-dev
-
-            networks:
-              main-dev:
-                external: true
-            EOF
-
             docker stack deploy \
-              -c /tmp/docker-compose-${{ inputs.service_name }}.yml \
+              -c docker-compose.yml \
               ${{ inputs.service_name }} \
               --with-registry-auth
 
