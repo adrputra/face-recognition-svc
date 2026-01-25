@@ -52,7 +52,7 @@ jobs:
             docker swarm init --advertise-addr $(hostname -I | awk '{print $1}') 2>/dev/null || true
             docker network create --driver overlay main-dev 2>/dev/null || true
 
-            cd /opt/mono-repo/services/${{ inputs.service_dir }}
+            cd /root/face-recognition-svc/services/${{ inputs.service_dir }}
 
             docker pull ${{ secrets.DOCKER_USERNAME }}/${{ inputs.service_name }}:latest
 
