@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  face-recognition-svc:
+  gateway-svc:
     image: ${DOCKER_USERNAME}/${SERVICE_NAME}:latest
     ports:
       - "8001:8001"
