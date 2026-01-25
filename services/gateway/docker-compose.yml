@@ -1,8 +1,8 @@
 version: '3.8'
 
-services: 
+services:
   gateway-svc:
-    image: ${DOCKER_USERNAME}/${SERVICE_NAME}:latest
+    image: adrputra/gateway-svc:latest
     ports:
       - "8001:8001"
     environment:
