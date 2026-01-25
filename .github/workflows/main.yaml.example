@@ -1,0 +1,91 @@
+name: CI/CD Face Recognition SVC
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+    # Checkout the code
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # Log in to Docker Hub
+    - name: Log in to Docker Hub
+      run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+    # Build Docker image
+    - name: Build Docker Image
+      run: |
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.NAME }}:latest .
+
+    # Push Docker image to Docker Hub
+    - name: Push Docker Image
+      run: |
+        docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.NAME }}:latest
+  
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [build]
+    timeout-minutes: 60
+    steps:
+      # SSH into server and deploy
+      - name: Deploy Stack
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          passphrase: ${{ secrets.PASSPHRASE }}
+          key: ${{ secrets.KEY }}
+          script: |
+            # Initialize Docker Swarm if not already initialized
+            docker swarm init --advertise-addr $(hostname -I | awk '{print $1}') 2>/dev/null || true
+            
+            # Ensure the network exists
+            docker network create --driver overlay main-dev 2>/dev/null || true
+            
+            # Pull the latest image
+            docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.NAME }}:latest
+            
+            # Create docker-compose.yml file with substituted values
+            DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
+            SERVICE_NAME=${{ secrets.NAME }}
+            cat > /tmp/docker-compose-${{ secrets.NAME }}.yml << EOF
+            version: '3.8'
+            
+            services:
+              face-recognition-svc:
+                image: ${DOCKER_USERNAME}/${SERVICE_NAME}:latest
+                ports:
+                  - "8001:8001"
+                environment:
+                  - PORT=8001
+                deploy:
+                  replicas: 1
+                  restart_policy:
+                    condition: on-failure
+                  resources:
+                    limits:
+                      memory: 512M
+                    reservations:
+                      memory: 256M
+                networks:
+                  - main-dev
+            
+            networks:
+              main-dev:
+                external: true
+            EOF
+            
+            # Deploy or update the stack
+            docker stack deploy -c /tmp/docker-compose-${{ secrets.NAME }}.yml ${{ secrets.NAME }} --with-registry-auth
+            
+            # Wait a moment for the stack to update
+            sleep 5
+            
+            # Verify the service is running
+            docker service ls | grep ${{ secrets.NAME }}

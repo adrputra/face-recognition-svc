@@ -76,3 +76,21 @@ type AuditLog struct {
 func (AuditLog) TableName() string {
 	return "audit_log"
 }
+
+type RolePermissionAssignment struct {
+	RoleID        string   `json:"role_id"`
+	PermissionIDs []string `json:"permission_ids"`
+}
+
+type PermissionUpdateRequest struct {
+	ID          string  `json:"id"`
+	IsActive    *bool   `json:"is_active"`
+	IsHighRisk  *bool   `json:"is_high_risk"`
+	Description *string `json:"description"`
+}
+
+type InstitutionFeatureRequest struct {
+	InstitutionID string `json:"institution_id"`
+	FeatureKey    string `json:"feature_key"`
+	IsEnabled     bool   `json:"is_enabled"`
+}

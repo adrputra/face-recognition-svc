@@ -354,6 +354,33 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Login (No Institution)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/login",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"login"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"johndoe\",\n    \"password\": \"P@ssw0rd\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -861,7 +888,7 @@
 						},
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"menu_key\": \"dashboard\",\n    \"menu_name\": \"Dashboard\",\n    \"menu_route\": \"/dashboard\",\n    \"icon\": \"home\",\n    \"parent_id\": null,\n    \"sort_order\": 1,\n    \"feature_key\": null,\n    \"is_active\": true\n}\n",
+							"raw": "{\n    \"menu_key\": \"dashboard\",\n    \"menu_name\": \"Dashboard\",\n    \"menu_route\": \"/dashboard\",\n    \"icon\": \"home\",\n    \"parent_id\": null,\n    \"sort_order\": 1,\n    \"feature_key\": \"menu.dashboard\",\n    \"is_active\": true\n}\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -900,7 +927,7 @@
 						},
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"id\": \"menu-id\",\n    \"menu_key\": \"dashboard\",\n    \"menu_name\": \"Dashboard\",\n    \"menu_route\": \"/dashboard\",\n    \"icon\": \"home\",\n    \"parent_id\": null,\n    \"sort_order\": 1,\n    \"feature_key\": null,\n    \"is_active\": true\n}\n",
+							"raw": "{\n    \"id\": \"menu-id\",\n    \"menu_key\": \"dashboard\",\n    \"menu_name\": \"Dashboard\",\n    \"menu_route\": \"/dashboard\",\n    \"icon\": \"home\",\n    \"parent_id\": null,\n    \"sort_order\": 1,\n    \"feature_key\": \"menu.dashboard\",\n    \"is_active\": true\n}\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1427,6 +1454,366 @@
 								"service",
 								"param",
 								"sample_key"
+							]
+						},
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Permission",
+			"item": [
+				{
+					"name": "Get All Permission",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/service/permission",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"service",
+								"permission"
+							]
+						},
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Permission",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/service/permission",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"service",
+								"permission"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"gateway.user.create\",\n    \"service\": \"gateway\",\n    \"resource\": \"user\",\n    \"action\": \"create\",\n    \"is_active\": true,\n    \"is_high_risk\": false,\n    \"description\": \"Create user\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Permission",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/service/permission",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"service",
+								"permission"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"permission-id\",\n    \"is_active\": true,\n    \"is_high_risk\": false,\n    \"description\": \"Updated description\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Assign Role Permissions",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/service/permission/assign",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"service",
+								"permission",
+								"assign"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"role_id\": \"role-id\",\n    \"permission_ids\": [\n        \"permission-id-1\",\n        \"permission-id-2\"\n    ]\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Role Permissions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/service/permission/role/role-id",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"service",
+								"permission",
+								"role",
+								"role-id"
+							]
+						},
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Feature",
+			"item": [
+				{
+					"name": "Get All Feature",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/service/feature",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"service",
+								"feature"
+							]
+						},
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Feature",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/service/feature",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"service",
+								"feature"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"feature_key\": \"menu.dashboard\",\n    \"name\": \"Dashboard Menu\",\n    \"description\": \"Enable dashboard menu\",\n    \"feature_type\": \"menu\",\n    \"default_enabled\": true\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Feature",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/service/feature",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"service",
+								"feature"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"feature-id\",\n    \"name\": \"Dashboard Menu\",\n    \"description\": \"Updated description\",\n    \"feature_type\": \"menu\",\n    \"default_enabled\": true\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Set Institution Feature",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/service/feature/institution",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"service",
+								"feature",
+								"institution"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"institution_id\": \"12345\",\n    \"feature_key\": \"menu.dashboard\",\n    \"is_enabled\": true\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Institution Features",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{endpoint}}/api/service/feature/institution/12345",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"service",
+								"feature",
+								"institution",
+								"12345"
 							]
 						},
 						"auth": {

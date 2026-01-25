@@ -19,14 +19,17 @@ import (
 
 type InterfaceUserClient interface {
 	CreateNewUser(ctx context.Context, user *model.User) error
+	GetUserByUsername(ctx context.Context, username string) (*model.User, error)
 	GetUserDetail(ctx context.Context, username string, institutionID string) (*model.User, error)
 	UpdateUser(ctx context.Context, user *model.User) error
 	DeleteUser(ctx context.Context, username string) error
 	CreateAccessToken(ctx context.Context, user *model.User, isLogout bool) (t string, expired int64, err error)
 	GetAllUser(ctx context.Context, scope string, institutionID string, pagination *model.Pagination, filter *model.Filter) ([]*model.User, *model.Pagination, error)
 	GetInstitutionList(ctx context.Context) ([]string, error)
+	GetUserInstitutions(ctx context.Context, username string) ([]*model.Institution, error)
 	UpdateProfilePhoto(ctx context.Context, url string, username string) error
 	UpdateCoverPhoto(ctx context.Context, url string, username string) error
+	GetUserPermission(ctx context.Context, user *model.User) ([]string, error)
 }
 
 type UserClient struct {
@@ -94,6 +97,32 @@ func (r *UserClient) CreateNewUser(ctx context.Context, req *model.User) error {
 	return nil
 }
 
+func (r *UserClient) GetUserByUsername(ctx context.Context, username string) (*model.User, error) {
+	span, ctx := utils.SpanFromContext(ctx, "Client: GetUserByUsername")
+	defer span.Finish()
+
+	utils.LogEvent(span, "Request", username)
+
+	var user model.User
+	query := `
+		SELECT id, username, email, password_hash, full_name, short_name, is_active,
+			profile_photo, cover_photo, created_at, updated_at
+		FROM "user"
+		WHERE username = ?`
+	result := r.db.Debug().WithContext(ctx).Raw(query, username).Scan(&user)
+	if result.RowsAffected == 0 {
+		utils.LogEventError(span, errors.New("user not found"))
+		return nil, model.ThrowError(http.StatusBadRequest, errors.New("user not found"))
+	}
+	if result.Error != nil {
+		utils.LogEventError(span, result.Error)
+		return nil, model.ThrowError(http.StatusInternalServerError, result.Error)
+	}
+
+	utils.LogEvent(span, "Response", user)
+	return &user, nil
+}
+
 func (r *UserClient) GetUserDetail(ctx context.Context, username string, institutionID string) (*model.User, error) {
 	span, ctx := utils.SpanFromContext(ctx, "Client: GetUserDetail")
 	defer span.Finish()
@@ -103,7 +132,7 @@ func (r *UserClient) GetUserDetail(ctx context.Context, username string, institu
 	var user model.User
 
 	query := `
-		SELECT u.id, u.username, u.email, u.full_name, u.short_name, u.is_active,
+		SELECT u.id, u.username, u.email, u.password_hash, u.full_name, u.short_name, u.is_active,
 			u.profile_photo, u.cover_photo, u.created_at, u.updated_at,
 			i.id AS institution_id, i.name AS institution_name
 		FROM "user" u
@@ -248,11 +277,18 @@ func (r *UserClient) CreateAccessToken(ctx context.Context, user *model.User, is
 
 	utils.LogEvent(span, "Expiry", ExpireCount)
 
+	permissions, err := r.GetUserPermission(ctx, user)
+	if err != nil {
+		utils.LogEventError(span, err)
+		return "", 0, err
+	}
+
 	exp := utils.LocalTime().Add(time.Hour * time.Duration(ExpireCount))
 	claims := &model.JwtCustomClaims{
-		UserID:   user.ID,
-		Username: user.Username,
-		RoleIDs:  user.RoleIDs,
+		UserID:      user.ID,
+		Username:    user.Username,
+		RoleIDs:     user.RoleIDs,
+		Permissions: permissions,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(exp),
 		},
@@ -338,8 +374,8 @@ func (r *UserClient) GetAllUser(ctx context.Context, scope string, institutionID
 	type userRow struct {
 		ID              string
 		Username        string
-		Fullname        string
-		Shortname       string
+		Fullname        string `gorm:"column:full_name"`
+		Shortname       string `gorm:"column:short_name"`
 		Email           string
 		IsActive        bool
 		CreatedAt       time.Time
@@ -404,6 +440,25 @@ func (r *UserClient) GetInstitutionList(ctx context.Context) ([]string, error) {
 	return response, nil
 }
 
+func (r *UserClient) GetUserInstitutions(ctx context.Context, username string) ([]*model.Institution, error) {
+	span, ctx := utils.SpanFromContext(ctx, "Client: GetUserInstitutions")
+	defer span.Finish()
+
+	var response []*model.Institution
+	query := `
+		SELECT i.*
+		FROM institution i
+		JOIN user_institution ui ON ui.institution_id = i.id
+		JOIN "user" u ON u.id = ui.user_id
+		WHERE u.username = ?
+		ORDER BY i.name ASC`
+	if err := r.db.Debug().WithContext(ctx).Raw(query, username).Scan(&response).Error; err != nil {
+		utils.LogEventError(span, err)
+		return nil, model.ThrowError(http.StatusInternalServerError, err)
+	}
+	return response, nil
+}
+
 func (r *UserClient) UpdateProfilePhoto(ctx context.Context, url string, username string) error {
 	span, ctx := utils.SpanFromContext(ctx, "Client: UpdateProfilePhoto")
 	defer span.Finish()
@@ -442,4 +497,22 @@ func (r *UserClient) UpdateCoverPhoto(ctx context.Context, url string, username 
 	}
 
 	return nil
+}
+
+func (r *UserClient) GetUserPermission(ctx context.Context, user *model.User) ([]string, error) {
+	span, ctx := utils.SpanFromContext(ctx, "Client: GetUserPermission")
+	defer span.Finish()
+
+	var permissions []string
+	query := `
+		SELECT p.name
+		FROM permission p
+		JOIN role_permission rp ON rp.permission_id = p.id
+		WHERE rp.role_id IN ?
+		AND p.is_active = TRUE`
+	if err := r.db.Debug().WithContext(ctx).Raw(query, user.RoleIDs).Scan(&permissions).Error; err != nil {
+		utils.LogEventError(span, err)
+		return nil, model.ThrowError(http.StatusInternalServerError, err)
+	}
+	return permissions, nil
 }

@@ -14,21 +14,38 @@ func InitConfig() {
 	viper.AddConfigPath(basedir)
 	viper.SetConfigType("yaml")
 	viper.SetConfigName("config.yaml")
-	err := viper.MergeInConfig()
 
-	if err != nil {
+	if err := viper.MergeInConfig(); err != nil {
 		log.Panic().Err(err).Msg("Failed to load config")
 	}
 
 	for _, k := range viper.AllKeys() {
 		value := viper.GetString(k)
+
 		if strings.HasPrefix(value, "${") && strings.HasSuffix(value, "}") {
-			viper.Set(k, getEnvOrPanic(strings.TrimSuffix(strings.TrimPrefix(value, "${"), "}")))
+			expr := strings.TrimSuffix(strings.TrimPrefix(value, "${"), "}")
+
+			switch {
+			case strings.HasPrefix(expr, "file:"):
+				secretPath := strings.TrimPrefix(expr, "file:")
+				secret, err := os.ReadFile(secretPath)
+				if err != nil {
+					log.Panic().
+						Err(err).
+						Str("path", secretPath).
+						Msg("Failed to read secret file")
+				}
+				viper.Set(k, strings.TrimSpace(string(secret)))
+
+			default:
+				viper.Set(k, getEnvOrPanic(expr))
+			}
 		}
 	}
 
-	viper.Unmarshal(&config)
-
+	if err := viper.Unmarshal(&config); err != nil {
+		log.Panic().Err(err).Msg("Failed to unmarshal config")
+	}
 }
 
 func getEnvOrPanic(env string) string {

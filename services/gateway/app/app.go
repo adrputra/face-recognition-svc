@@ -79,6 +79,8 @@ func Start() {
 	router.InitUserRoute("/user", api)
 	router.InitDatasetRoute("/dataset", api)
 	router.InitRoleRoute("/role", api)
+	router.InitPermissionRoute("/permission", api)
+	router.InitFeatureRoute("/feature", api)
 	router.InitParamRoute("/param", api)
 	router.InitInstitutionRoute("/institution", api)
 

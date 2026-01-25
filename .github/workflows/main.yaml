@@ -1,40 +1,46 @@
-name: CI/CD Face Recognition SVC
+name: Service CI/CD
 
 on:
-  push:
-    branches:
-      - main
+  workflow_call:
+    inputs:
+      service_name:
+        required: true
+        type: string
+      service_dir:
+        required: true
+        type: string
+      port:
+        required: true
+        type: number
 
 jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 60
+
     steps:
-    # Checkout the code
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    # Log in to Docker Hub
-    - name: Log in to Docker Hub
-      run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-    # Build Docker image
-    - name: Build Docker Image
-      run: |
-        docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.NAME }}:latest .
+      - name: Build Docker Image
+        run: |
+          docker build \
+            -t ${{ secrets.DOCKER_USERNAME }}/${{ inputs.service_name }}:latest \
+            services/${{ inputs.service_dir }}
 
-    # Push Docker image to Docker Hub
-    - name: Push Docker Image
-      run: |
-        docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.NAME }}:latest
-  
+      - name: Push Docker Image
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/${{ inputs.service_name }}:latest
+
   deploy:
     runs-on: ubuntu-latest
-    needs: [build]
+    needs: build
     timeout-minutes: 60
+
     steps:
-      # SSH into server and deploy
-      - name: Deploy Stack
+      - name: Deploy to Docker Swarm
         uses: appleboy/ssh-action@v0.1.8
         with:
           host: ${{ secrets.HOST }}
@@ -42,28 +48,23 @@ jobs:
           passphrase: ${{ secrets.PASSPHRASE }}
           key: ${{ secrets.KEY }}
           script: |
-            # Initialize Docker Swarm if not already initialized
+            set -e
+
             docker swarm init --advertise-addr $(hostname -I | awk '{print $1}') 2>/dev/null || true
-            
-            # Ensure the network exists
             docker network create --driver overlay main-dev 2>/dev/null || true
-            
-            # Pull the latest image
-            docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.NAME }}:latest
-            
-            # Create docker-compose.yml file with substituted values
-            DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
-            SERVICE_NAME=${{ secrets.NAME }}
-            cat > /tmp/docker-compose-${{ secrets.NAME }}.yml << EOF
+
+            docker pull ${{ secrets.DOCKER_USERNAME }}/${{ inputs.service_name }}:latest
+
+            cat > /tmp/docker-compose-${{ inputs.service_name }}.yml << EOF
             version: '3.8'
-            
+
             services:
-              face-recognition-svc:
-                image: ${DOCKER_USERNAME}/${SERVICE_NAME}:latest
+              ${{ inputs.service_name }}:
+                image: ${{ secrets.DOCKER_USERNAME }}/${{ inputs.service_name }}:latest
                 ports:
-                  - "8001:8001"
+                  - "${{ inputs.port }}:${{ inputs.port }}"
                 environment:
-                  - PORT=8001
+                  - PORT=${{ inputs.port }}
                 deploy:
                   replicas: 1
                   restart_policy:
@@ -75,17 +76,16 @@ jobs:
                       memory: 256M
                 networks:
                   - main-dev
-            
+
             networks:
               main-dev:
                 external: true
             EOF
-            
-            # Deploy or update the stack
-            docker stack deploy -c /tmp/docker-compose-${{ secrets.NAME }}.yml ${{ secrets.NAME }} --with-registry-auth
-            
-            # Wait a moment for the stack to update
+
+            docker stack deploy \
+              -c /tmp/docker-compose-${{ inputs.service_name }}.yml \
+              ${{ inputs.service_name }} \
+              --with-registry-auth
+
             sleep 5
-            
-            # Verify the service is running
-            docker service ls | grep ${{ secrets.NAME }}
+            docker service ls | grep ${{ inputs.service_name }}

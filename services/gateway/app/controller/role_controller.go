@@ -120,6 +120,13 @@ func (c *RoleController) CreateNewMenu(ctx context.Context, request *model.Menu)
 	request.CreatedAt = time.Now()
 	request.UpdatedAt = time.Now()
 
+	if request.ParentID != nil && *request.ParentID == "" {
+		request.ParentID = nil
+	}
+	if request.FeatureKey != nil && *request.FeatureKey == "" {
+		request.FeatureKey = nil
+	}
+
 	utils.LogEvent(span, "Request", request)
 
 	err := c.roleClient.CreateNewMenu(ctx, request)
@@ -175,6 +182,13 @@ func (c *RoleController) UpdateMenu(ctx context.Context, request *model.Menu) er
 	defer span.Finish()
 
 	request.UpdatedAt = time.Now()
+
+	if request.ParentID != nil && *request.ParentID == "" {
+		request.ParentID = nil
+	}
+	if request.FeatureKey != nil && *request.FeatureKey == "" {
+		request.FeatureKey = nil
+	}
 
 	utils.LogEvent(span, "Request", request)
 

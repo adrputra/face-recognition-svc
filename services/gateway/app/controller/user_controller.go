@@ -146,6 +146,34 @@ func (c *UserController) Login(ctx context.Context, request *model.RequestLogin)
 
 	utils.LogEvent(span, "Request", request)
 
+	if request.InstitutionID == "" {
+		user, err := c.userClient.GetUserByUsername(ctx, request.Username)
+		if err != nil {
+			utils.LogEventError(span, err)
+			return nil, err
+		}
+		if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(request.Password)); err != nil {
+			utils.LogEventError(span, errors.New("invalid username or password "))
+			return nil, model.ThrowError(http.StatusBadRequest, errors.New("invalid username or password "))
+		}
+		institutions, err := c.userClient.GetUserInstitutions(ctx, request.Username)
+		if err != nil {
+			utils.LogEventError(span, err)
+			return nil, err
+		}
+		response := &model.ResponseLogin{
+			UserID:       user.ID,
+			Username:     user.Username,
+			Fullname:     user.Fullname,
+			Shortname:    user.Shortname,
+			RoleIDs:      nil,
+			Token:        "",
+			Institutions: institutions,
+		}
+		utils.LogEvent(span, "Response", response)
+		return response, nil
+	}
+
 	user, err := c.userClient.GetUserDetail(ctx, request.Username, request.InstitutionID)
 	if err != nil {
 		utils.LogEventError(span, err)

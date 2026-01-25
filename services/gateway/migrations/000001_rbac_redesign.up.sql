@@ -107,7 +107,7 @@ CREATE TABLE IF NOT EXISTS permission (
     CONSTRAINT uq_permissions_name UNIQUE (name),
     CONSTRAINT uq_permissions_triplet UNIQUE (service, resource, action),
     CONSTRAINT chk_permission_name_format CHECK (
-        name ~ '^[a-z][a-z0-9]*\\.[a-z][a-z0-9_]*\\.[a-z][a-z0-9_]*$'
+        name ~ '^[a-z][a-z0-9]*\.[a-z][a-z0-9_]*\.[a-z][a-z0-9_]*$'
     )
 );
 

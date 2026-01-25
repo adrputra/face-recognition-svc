@@ -20,6 +20,8 @@ type ServiceFactory struct {
 	role        service.InterfaceRoleService
 	param       service.InterfaceParamService
 	institution service.InterfaceInstitutionService
+	permission  service.InterfacePermissionService
+	feature     service.InterfaceFeatureService
 }
 
 type ControllerFactory struct {
@@ -28,12 +30,16 @@ type ControllerFactory struct {
 	role        controller.InterfaceRoleController
 	param       controller.InterfaceParamController
 	institution controller.InterfaceInstitutionController
+	permission  controller.InterfacePermissionController
+	feature     controller.InterfaceFeatureController
 }
 
 type ClientFactory struct {
 	user        client.InterfaceUserClient
 	storage     client.InterfaceStorageClient
 	role        client.InterfaceRoleClient
+	permission  client.InterfacePermissionClient
+	feature     client.InterfaceFeatureClient
 	dataset     client.InterfaceDatasetClient
 	param       client.InterfaceParamClient
 	institution client.InterfaceInstitutionClient
@@ -57,6 +63,8 @@ func InitFactory(cfg *config.Config, db *gorm.DB, s3 *s3.S3, redis *redis.Client
 		user:        client.NewUserClient(db, cfg),
 		storage:     client.NewStorageClient(s3, db),
 		role:        client.NewRoleClient(db),
+		permission:  client.NewPermissionClient(db),
+		feature:     client.NewFeatureClient(db),
 		dataset:     client.NewDatasetClient(db, cfg, mq),
 		param:       client.NewParamClient(db),
 		institution: client.NewInstitutionClient(db),
@@ -65,6 +73,8 @@ func InitFactory(cfg *config.Config, db *gorm.DB, s3 *s3.S3, redis *redis.Client
 		user:        controller.NewUserController(client.user, client.role, client.param, client.storage, cfg, redis),
 		dataset:     controller.NewDatasetController(client.storage, db, client.user, cfg, client.dataset),
 		role:        controller.NewRoleController(client.role),
+		permission:  controller.NewPermissionController(client.permission),
+		feature:     controller.NewFeatureController(client.feature),
 		param:       controller.NewParamController(redis, client.param),
 		institution: controller.NewInstitutionController(client.institution),
 	}
@@ -72,6 +82,8 @@ func InitFactory(cfg *config.Config, db *gorm.DB, s3 *s3.S3, redis *redis.Client
 		user:        service.NewUserService(controller.user),
 		dataset:     service.NewDatasetService(controller.dataset),
 		role:        service.NewRoleService(controller.role),
+		permission:  service.NewPermissionService(controller.permission),
+		feature:     service.NewFeatureService(controller.feature),
 		param:       service.NewParamService(controller.param),
 		institution: service.NewInstitutionService(controller.institution),
 	}

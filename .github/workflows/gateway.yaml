@@ -1,0 +1,16 @@
+name: Gateway Service CI/CD
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "services/gateway/**"
+      - ".github/workflows/gateway.yml"
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/main.yml
+    with:
+      service_name: gateway-svc
+      service_dir: gateway
+      port: 8001

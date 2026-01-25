@@ -1,0 +1,46 @@
+databaseProfile:
+  database:
+    host: "154.53.63.99"
+    port: 5432
+    username: "admin"
+    password: "Contabo8@adr"
+    database: "digital_learning"
+    maxConn: 5
+    maxIdle: 5
+    lifeTime: 5
+  timeout: 30000
+listener:
+  host: "0.0.0.0"
+  port: 8001
+auth:
+  accessSecret: "secret"
+  accessExpiry: 184000
+  refreshSecret: "secret"
+redis:
+  host: "154.53.63.99"
+  port: "6379"
+  username: ""
+  password: "Contabo8@adr"
+jaeger:
+  host: "154.53.63.99"
+  port: "6831"
+  tracePerSecond: 100
+  serviceName: "face-recognition-svc"
+minioProfile:
+  host: "154.53.63.99"
+  port: "7000"
+  username: "admin"
+  secretKey: "adrputra"
+  tls: false
+  region: "id-jkt-1"
+  bucket: "face-dataset"
+api:
+  processingsvc:
+    host: "http://localhost"
+    port: 8002
+    endpoint: "/train-model"
+rabbitmq:
+  host: "154.53.63.99"
+  port: "5672"
+  username: "admin"
+  password: "Rabbitmq8@adr"

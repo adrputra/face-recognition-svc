@@ -233,3 +233,46 @@ For every gRPC call:
 - Seed required permissions and assign to roles.
 - Ensure JWT secret is configured and consistent.
 - Ensure `app-permission` header is set by API clients or gateway routing layer.
+
+## 15) Feature Usage Guide
+
+### Definition
+Feature is a **toggleable capability** used to control UI navigation (and optionally other system behavior). It is **not** a permission and does **not** grant API access.
+
+### Where it applies
+- `menu.feature_key` links a menu item to a feature toggle.
+- `institution_feature` overrides feature state per institution.
+- If no override exists, `feature.default_enabled` is used.
+
+### Recommended Naming
+Use a namespaced, purpose-specific key. Examples:
+- `menu.dashboard`
+- `menu.user_management`
+- `menu.attendance`
+- `system.beta_reports`
+
+### Example: Enable menu per institution
+1) Create feature:
+```
+feature_key: "menu.dashboard"
+feature_type: "menu"
+default_enabled: true
+```
+
+2) Create or update menu:
+```
+menu_key: "dashboard"
+feature_key: "menu.dashboard"
+```
+
+3) Override per institution:
+```
+institution_id: "12345"
+feature_key: "menu.dashboard"
+is_enabled: true
+```
+
+### Rules
+- Menus with `feature_key = NULL` are always eligible.
+- Menu visibility is derived from `role_menu` **and** feature state.
+- Feature toggles never replace permission checks.

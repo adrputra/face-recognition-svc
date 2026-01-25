@@ -18,8 +18,39 @@ services:
           memory: 256M
     networks:
       - main-dev
+    secrets:
+      - db_username
+      - db_password
+      - auth_access_secret
+      - auth_refresh_secret
+      - redis_password
+      - minio_username
+      - minio_secret_key
+      - rabbitmq_username
+      - rabbitmq_password
 
 networks:
   main-dev:
     external: true
+
+secrets:
+  db_username:
+    external: true
+  db_password:
+    external: true
+  auth_access_secret:
+    external: true
+  auth_refresh_secret:
+    external: true
+  redis_password:
+    external: true
+  minio_username:
+    external: true
+  minio_secret_key:
+    external: true
+  rabbitmq_username:
+    external: true
+  rabbitmq_password:
+    external: true
+
 

@@ -10,6 +10,7 @@ type JwtCustomClaims struct {
 	UserID        string   `json:"user_id"`
 	Username      string   `json:"username"`
 	RoleIDs       []string `json:"role_ids"`
+	Permissions   []string `json:"permissions"`
 	InstitutionID string   `json:"institution_id"`
 	jwt.RegisteredClaims
 }
@@ -18,6 +19,7 @@ type MetadataUser struct {
 	UserID        string   `json:"user_id"`
 	Username      string   `json:"username"`
 	RoleIDs       []string `json:"role_ids"`
+	Permissions   []string `json:"permissions"`
 	InstitutionID string   `json:"institution_id"`
 }
 
@@ -34,8 +36,8 @@ type User struct {
 	UpdatedAt       time.Time `json:"updated_at" gorm:"column:updated_at"`
 	ProfilePhoto    string    `json:"profile_photo" gorm:"column:profile_photo"`
 	CoverPhoto      string    `json:"cover_photo" gorm:"column:cover_photo"`
-	InstitutionID   string    `json:"institution_id" gorm:"-"`
-	InstitutionName string    `json:"institution_name" gorm:"-"`
+	InstitutionID   string    `json:"institution_id" gorm:"institution_id"`
+	InstitutionName string    `json:"institution_name" gorm:"institution_name"`
 	RoleID          string    `json:"role_id" gorm:"-"`
 	RoleName        string    `json:"role_name" gorm:"-"`
 	RoleIDs         []string  `json:"role_ids" gorm:"-"`
@@ -76,7 +78,7 @@ func (UserRole) TableName() string {
 type RequestLogin struct {
 	Username      string `json:"username" gorm:"column:username" validate:"required"`
 	Password      string `json:"password" gorm:"column:password" validate:"required"`
-	InstitutionID string `json:"institution_id" validate:"required"`
+	InstitutionID string `json:"institution_id"`
 }
 
 type ResponseLogin struct {
@@ -89,6 +91,7 @@ type ResponseLogin struct {
 	InstitutionID   string             `json:"institution_id"`
 	InstitutionName string             `json:"institution_name"`
 	MenuMapping     []*MenuRoleMapping `json:"menu_mapping"`
+	Institutions    []*Institution     `json:"institutions"`
 }
 
 type UploadPhoto struct {
