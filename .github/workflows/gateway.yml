@@ -10,6 +10,7 @@ on:
 jobs:
   deploy:
     uses: ./.github/workflows/main.yml
+    secrets: inherit
     with:
       service_name: gateway-svc
       service_dir: gateway
