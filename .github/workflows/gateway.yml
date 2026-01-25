@@ -14,4 +14,4 @@ jobs:
     with:
       service_name: gateway-svc
       service_dir: gateway
-      port: 8001
+      # port: 8001
