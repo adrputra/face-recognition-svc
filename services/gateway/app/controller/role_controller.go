@@ -2,9 +2,9 @@ package controller
 
 import (
 	"context"
-	"face-recognition-svc/gateway/app/client"
-	"face-recognition-svc/gateway/app/model"
-	"face-recognition-svc/gateway/app/utils"
+	"github.com/adrputra/face-recognition-svc/gateway/app/client"
+	"github.com/adrputra/face-recognition-svc/gateway/app/model"
+	"github.com/adrputra/face-recognition-svc/gateway/app/utils"
 	"time"
 
 	"github.com/google/uuid"

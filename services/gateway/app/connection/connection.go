@@ -3,7 +3,7 @@ package connection
 import (
 	"context"
 	"crypto/tls"
-	"face-recognition-svc/gateway/app/config"
+	"github.com/adrputra/face-recognition-svc/gateway/app/config"
 	"fmt"
 	"net/http"
 

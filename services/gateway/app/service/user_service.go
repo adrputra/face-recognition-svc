@@ -2,9 +2,9 @@ package service
 
 import (
 	"bytes"
-	"face-recognition-svc/gateway/app/controller"
-	"face-recognition-svc/gateway/app/model"
-	"face-recognition-svc/gateway/app/utils"
+	"github.com/adrputra/face-recognition-svc/gateway/app/controller"
+	"github.com/adrputra/face-recognition-svc/gateway/app/model"
+	"github.com/adrputra/face-recognition-svc/gateway/app/utils"
 	"fmt"
 	"io"
 	"net/http"

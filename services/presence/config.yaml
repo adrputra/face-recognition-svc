@@ -1,0 +1,11 @@
+grpc:
+  port: 50051
+
+# Environment / infrastructure settings.
+env:
+  name: development
+  log_level: info
+
+secrets:
+  # Example: set this path via CONFIG_PATH in Docker Secret
+  config_path: /run/secrets/presence-config

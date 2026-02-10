@@ -1,13 +1,14 @@
 package app
 
 import (
-	"face-recognition-svc/gateway/app/config"
-	"face-recognition-svc/gateway/app/connection"
-	"face-recognition-svc/gateway/app/model"
-	"face-recognition-svc/gateway/app/router"
-	"face-recognition-svc/gateway/app/utils"
 	"os"
 	"strconv"
+
+	"github.com/adrputra/face-recognition-svc/gateway/app/config"
+	"github.com/adrputra/face-recognition-svc/gateway/app/connection"
+	"github.com/adrputra/face-recognition-svc/gateway/app/model"
+	"github.com/adrputra/face-recognition-svc/gateway/app/router"
+	"github.com/adrputra/face-recognition-svc/gateway/app/utils"
 
 	"github.com/golang-jwt/jwt/v5"
 	echojwt "github.com/labstack/echo-jwt/v4"
@@ -72,7 +73,7 @@ func Start() {
 	api := public.Group("/service")
 
 	api.Use(echojwt.WithConfig(auth))
-	api.Use(router.GetFactory().Middleware.Auth.IsAuthorized())
+	// api.Use(router.GetFactory().Middleware.Auth.IsAuthorized())
 
 	e.Use(middleware.Logger())
 	router.InitPublicRoute("", public)

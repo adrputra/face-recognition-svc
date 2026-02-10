@@ -1,10 +1,9 @@
-module face-recognition-svc/gateway
+module github.com/adrputra/face-recognition-svc/gateway
 
-go 1.23.0
-
-toolchain go1.24.0
+go 1.24.0
 
 require (
+	github.com/adrputra/face-recognition-svc/shared v0.0.1
 	github.com/aws/aws-sdk-go v1.55.5
 	github.com/go-sql-driver/mysql v1.7.0
 	github.com/golang-jwt/jwt v3.2.2+incompatible
@@ -21,8 +20,8 @@ require (
 	github.com/rs/zerolog v1.34.0
 	github.com/spf13/viper v1.19.0
 	github.com/uber/jaeger-client-go v2.30.0+incompatible
-	golang.org/x/crypto v0.36.0
-	google.golang.org/grpc v1.67.0
+	golang.org/x/crypto v0.44.0
+	google.golang.org/grpc v1.78.0
 	gorm.io/driver/postgres v1.6.0
 	gorm.io/gorm v1.25.11
 )
@@ -64,10 +63,10 @@ require (
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
-	golang.org/x/net v0.38.0 // indirect
-	golang.org/x/sync v0.12.0 // indirect
-	golang.org/x/sys v0.31.0 // indirect
-	golang.org/x/text v0.23.0 // indirect
+	golang.org/x/net v0.47.0 // indirect
+	golang.org/x/sync v0.18.0 // indirect
+	golang.org/x/sys v0.38.0 // indirect
+	golang.org/x/text v0.31.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

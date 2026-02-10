@@ -2,7 +2,7 @@ package connection
 
 import (
 	"database/sql"
-	"face-recognition-svc/gateway/app/config"
+	"github.com/adrputra/face-recognition-svc/gateway/app/config"
 	"fmt"
 	"log"
 	"os"

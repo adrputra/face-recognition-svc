@@ -1,11 +1,11 @@
 package router
 
 import (
-	"face-recognition-svc/gateway/app/client"
-	"face-recognition-svc/gateway/app/config"
-	"face-recognition-svc/gateway/app/controller"
-	"face-recognition-svc/gateway/app/service"
-	"face-recognition-svc/gateway/app/utils"
+	"github.com/adrputra/face-recognition-svc/gateway/app/client"
+	"github.com/adrputra/face-recognition-svc/gateway/app/config"
+	"github.com/adrputra/face-recognition-svc/gateway/app/controller"
+	"github.com/adrputra/face-recognition-svc/gateway/app/service"
+	"github.com/adrputra/face-recognition-svc/gateway/app/utils"
 
 	"github.com/aws/aws-sdk-go/service/s3"
 	amqp "github.com/rabbitmq/amqp091-go"

@@ -6,7 +6,7 @@ import (
 	"io"
 	"net/http"
 
-	conf "face-recognition-svc/gateway/app/config"
+	conf "github.com/adrputra/face-recognition-svc/gateway/app/config"
 
 	"github.com/labstack/echo/v4"
 	"github.com/opentracing/opentracing-go"

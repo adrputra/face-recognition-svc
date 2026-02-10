@@ -1,7 +1,7 @@
 package main
 
 import (
-	"face-recognition-svc/gateway/app"
+	"github.com/adrputra/face-recognition-svc/gateway/app"
 	"os"
 )
 

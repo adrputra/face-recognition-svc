@@ -1,8 +1,11 @@
-go 1.23.0
+go 1.24.0
 
 use (
-    ./services/gateway
-    // ./services/class
-    // ./services/presence
-    // ./services/event
+	./services/gateway
+	./services/presence
+	./services/shared
+// ./services/class
+// ./services/event
 )
+
+replace github.com/adrputra/face-recognition-svc/shared v0.0.1 => ./services/shared
