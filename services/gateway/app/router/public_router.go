@@ -1,7 +1,7 @@
 package router
 
 import (
-	"github.com/adrputra/face-recognition-svc/gateway/app/model"
+	model "github.com/adrputra/face-recognition-svc/gateway/app/domain"
 	"net/http"
 
 	"github.com/labstack/echo/v4"

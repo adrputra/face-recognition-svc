@@ -3,8 +3,8 @@ package utils
 import (
 	"context"
 	"errors"
-	"github.com/adrputra/face-recognition-svc/gateway/app/model"
 	"fmt"
+	model "github.com/adrputra/face-recognition-svc/gateway/app/domain"
 	"net/http"
 	"strconv"
 	"strings"

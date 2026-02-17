@@ -3,10 +3,10 @@ package client
 import (
 	"context"
 	"errors"
-	"github.com/adrputra/face-recognition-svc/gateway/app/config"
-	"github.com/adrputra/face-recognition-svc/gateway/app/model"
-	"github.com/adrputra/face-recognition-svc/gateway/app/utils"
 	"fmt"
+	"github.com/adrputra/face-recognition-svc/gateway/app/config"
+	model "github.com/adrputra/face-recognition-svc/gateway/app/domain"
+	"github.com/adrputra/face-recognition-svc/gateway/app/utils"
 	"net/http"
 	"strconv"
 	"strings"

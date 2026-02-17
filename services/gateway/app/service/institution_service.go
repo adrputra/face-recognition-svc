@@ -3,7 +3,7 @@ package service
 import (
 	"errors"
 	"github.com/adrputra/face-recognition-svc/gateway/app/controller"
-	"github.com/adrputra/face-recognition-svc/gateway/app/model"
+	model "github.com/adrputra/face-recognition-svc/gateway/app/domain"
 	"github.com/adrputra/face-recognition-svc/gateway/app/utils"
 	"net/http"
 

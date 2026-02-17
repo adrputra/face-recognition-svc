@@ -1,0 +1,150 @@
+package service
+
+import (
+	"errors"
+	"github.com/adrputra/face-recognition-svc/gateway-gin/app/controller"
+	"github.com/adrputra/face-recognition-svc/gateway-gin/app/model"
+	"github.com/adrputra/face-recognition-svc/gateway-gin/app/utils"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+)
+
+type InterfaceInstitutionService interface {
+	GetAllInstitution(e *gin.Context) error
+	GetInstitutionByID(e *gin.Context) error
+	CreateNewInstitution(e *gin.Context) error
+	UpdateInstitution(e *gin.Context) error
+	DeleteInstitution(e *gin.Context) error
+}
+
+type InstitutionService struct {
+	uc controller.InterfaceInstitutionController
+}
+
+func NewInstitutionService(uc controller.InterfaceInstitutionController) *InstitutionService {
+	return &InstitutionService{uc: uc}
+}
+
+func (c *InstitutionService) GetAllInstitution(e *gin.Context) error {
+	ctx, span := utils.StartSpan(e, "GetAllInstitution")
+	defer span.Finish()
+
+	pagination := utils.ParsePaginationFromQuery(e)
+	filter := utils.ParseFilterFromQuery(e)
+
+	res, pagination, err := c.uc.GetAllInstitution(ctx, pagination, filter)
+	if err != nil {
+		utils.LogEventError(span, err)
+		return utils.LogError(e, err, nil)
+	}
+
+	utils.LogEvent(span, "Response", res)
+
+	return utils.JSON(e, http.StatusOK, model.Response{
+		Code:       200,
+		Message:    "Success Get All Institution",
+		Data:       res,
+		Pagination: pagination,
+	})
+}
+
+func (c *InstitutionService) GetInstitutionByID(e *gin.Context) error {
+	ctx, span := utils.StartSpan(e, "GetInstitutionByID")
+	defer span.Finish()
+
+	id := e.Param("id")
+	if id == "" {
+		utils.LogEventError(span, errors.New("id shouldn't be empty"))
+		return utils.LogError(e, errors.New("id shouldn't be empty"), nil)
+	}
+
+	res, err := c.uc.GetInstitutionByID(ctx, id)
+	if err != nil {
+		utils.LogEventError(span, err)
+		return utils.LogError(e, err, nil)
+	}
+
+	utils.LogEvent(span, "Response", res)
+
+	return utils.JSON(e, http.StatusOK, model.Response{
+		Code:    200,
+		Message: "Success Get Institution By ID",
+		Data:    res,
+	})
+}
+
+func (c *InstitutionService) CreateNewInstitution(e *gin.Context) error {
+	ctx, span := utils.StartSpan(e, "CreateNewInstitution")
+	defer span.Finish()
+
+	var institution *model.Institution
+	if err := e.ShouldBind(&institution); err != nil {
+		utils.LogEventError(span, err)
+		return utils.LogError(e, err, nil)
+	}
+
+	err := c.uc.InsertNewInstitution(ctx, institution)
+	if err != nil {
+		utils.LogEventError(span, err)
+		return utils.LogError(e, err, nil)
+	}
+
+	utils.LogEvent(span, "Response", institution)
+
+	return utils.JSON(e, http.StatusOK, model.Response{
+		Code:    200,
+		Message: "Success Create New Institution",
+		Data:    nil,
+	})
+}
+
+func (c *InstitutionService) UpdateInstitution(e *gin.Context) error {
+	ctx, span := utils.StartSpan(e, "UpdateInstitution")
+	defer span.Finish()
+
+	var institution *model.Institution
+	if err := e.ShouldBind(&institution); err != nil {
+		utils.LogEventError(span, err)
+		return utils.LogError(e, err, nil)
+	}
+
+	err := c.uc.UpdateInstitution(ctx, institution)
+	if err != nil {
+		utils.LogEventError(span, err)
+		return utils.LogError(e, err, nil)
+	}
+
+	utils.LogEvent(span, "Response", institution)
+
+	return utils.JSON(e, http.StatusOK, model.Response{
+		Code:    200,
+		Message: "Success Update Institution",
+		Data:    nil,
+	})
+}
+
+func (c *InstitutionService) DeleteInstitution(e *gin.Context) error {
+	ctx, span := utils.StartSpan(e, "DeleteInstitution")
+	defer span.Finish()
+
+	id := e.Param("id")
+	if id == "" {
+		utils.LogEventError(span, errors.New("id shouldn't be empty"))
+		return utils.LogError(e, errors.New("id shouldn't be empty"), nil)
+	}
+
+	err := c.uc.DeleteInstitution(ctx, id)
+	if err != nil {
+		utils.LogEventError(span, err)
+		return utils.LogError(e, err, nil)
+	}
+
+	utils.LogEvent(span, "Response", "Success Delete Institution")
+
+	return utils.JSON(e, http.StatusOK, model.Response{
+		Code:    200,
+		Message: "Success Delete Institution",
+		Data:    nil,
+	})
+}

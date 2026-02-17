@@ -6,9 +6,11 @@ import (
 	"net"
 	"strconv"
 
-	"google.golang.org/grpc"
-
 	"github.com/adrputra/face-recognition-svc/presence-svc/internal/config"
+	"github.com/adrputra/face-recognition-svc/presence-svc/internal/controller"
+	"github.com/adrputra/face-recognition-svc/presence-svc/internal/repository"
+	grpcservice "github.com/adrputra/face-recognition-svc/presence-svc/internal/service/grpc"
+	"google.golang.org/grpc"
 )
 
 type GRPCServer struct {
@@ -24,6 +26,11 @@ func NewGRPCServer(cfg config.Config) (*GRPCServer, error) {
 	}
 
 	grpcServer := grpc.NewServer()
+
+	presenceRepository := repository.NewPresenceRepository()
+	presenceController := controller.NewPresenceController(presenceRepository)
+	handler := grpcservice.NewHandler(presenceController)
+	grpcservice.RegisterPresenceServiceServer(grpcServer, handler)
 
 	return &GRPCServer{
 		server:   grpcServer,

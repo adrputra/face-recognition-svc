@@ -6,7 +6,7 @@ import (
 
 	"github.com/adrputra/face-recognition-svc/gateway/app/config"
 	"github.com/adrputra/face-recognition-svc/gateway/app/connection"
-	"github.com/adrputra/face-recognition-svc/gateway/app/model"
+	model "github.com/adrputra/face-recognition-svc/gateway/app/domain"
 	"github.com/adrputra/face-recognition-svc/gateway/app/router"
 	"github.com/adrputra/face-recognition-svc/gateway/app/utils"
 
@@ -84,6 +84,7 @@ func Start() {
 	router.InitFeatureRoute("/feature", api)
 	router.InitParamRoute("/param", api)
 	router.InitInstitutionRoute("/institution", api)
+	router.InitPresenceRoute("/presence", api)
 
 	e.Logger.Fatal(e.Start(host + ":" + strconv.Itoa(port)))
 }

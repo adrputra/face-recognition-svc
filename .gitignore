@@ -2,3 +2,5 @@
 
 /vendor
 /services/gateway/vendor
+/services/gateway-gin/vendor
+/services/presence/vendor

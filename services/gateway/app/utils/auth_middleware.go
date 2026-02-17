@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/adrputra/face-recognition-svc/gateway/app/model"
+	model "github.com/adrputra/face-recognition-svc/gateway/app/domain"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"

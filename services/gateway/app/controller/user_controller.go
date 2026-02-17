@@ -3,11 +3,11 @@ package controller
 import (
 	"context"
 	"errors"
-	"github.com/adrputra/face-recognition-svc/gateway/app/client"
-	"github.com/adrputra/face-recognition-svc/gateway/app/config"
-	"github.com/adrputra/face-recognition-svc/gateway/app/model"
-	"github.com/adrputra/face-recognition-svc/gateway/app/utils"
 	"fmt"
+	"github.com/adrputra/face-recognition-svc/gateway/app/config"
+	model "github.com/adrputra/face-recognition-svc/gateway/app/domain"
+	client "github.com/adrputra/face-recognition-svc/gateway/app/repository"
+	"github.com/adrputra/face-recognition-svc/gateway/app/utils"
 	"net/http"
 
 	"github.com/redis/go-redis/v9"

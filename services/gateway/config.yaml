@@ -39,6 +39,9 @@ api:
     host: "http://localhost"
     port: 8002
     endpoint: "/train-model"
+  presencesvc:
+    host: "localhost"
+    port: 50051
 rabbitmq:
   host: "154.53.63.99"
   port: "5672"

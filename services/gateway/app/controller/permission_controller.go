@@ -3,8 +3,8 @@ package controller
 import (
 	"context"
 	"errors"
-	"github.com/adrputra/face-recognition-svc/gateway/app/client"
-	"github.com/adrputra/face-recognition-svc/gateway/app/model"
+	model "github.com/adrputra/face-recognition-svc/gateway/app/domain"
+	client "github.com/adrputra/face-recognition-svc/gateway/app/repository"
 	"github.com/adrputra/face-recognition-svc/gateway/app/utils"
 	"net/http"
 	"time"

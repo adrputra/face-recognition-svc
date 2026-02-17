@@ -3,10 +3,10 @@ package service
 import (
 	"bytes"
 	"errors"
-	"github.com/adrputra/face-recognition-svc/gateway/app/controller"
-	"github.com/adrputra/face-recognition-svc/gateway/app/model"
-	"github.com/adrputra/face-recognition-svc/gateway/app/utils"
 	"fmt"
+	"github.com/adrputra/face-recognition-svc/gateway/app/controller"
+	model "github.com/adrputra/face-recognition-svc/gateway/app/domain"
+	"github.com/adrputra/face-recognition-svc/gateway/app/utils"
 	"io"
 	"net/http"
 
